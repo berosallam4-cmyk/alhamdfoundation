@@ -83,6 +83,8 @@ export async function POST(req: Request) {
             });
           }
         }
+                return NextResponse.json({ ok: true });
+      }
 
       case "deleteApplication":
         await db
@@ -115,6 +117,32 @@ export async function POST(req: Request) {
             .set({ status: "selected" })
             .where(eq(scholarshipApplications.id, w.id));
         }
+                // Send the editable "lucky" template to each winner
+        after(async () => {
+          for (const w of winners) {
+            try {
+              await sendTemplateEmail({
+                key: "lucky",
+                to: w.email,
+                vars: {
+                  id: w.id,
+                  name: w.fullName,
+                  fatherName: w.fatherName,
+                  cnic: w.cnic,
+                  phone: w.phone,
+                  email: w.email,
+                  university: w.university,
+                  semester: w.semester,
+                  city: w.city,
+                  fee: w.perSemesterFee.toLocaleString("en-PK"),
+                  reason: "",
+                },
+              });
+            } catch (e) {
+              console.error("Draw winner email failed:", e);
+            }
+          }
+        });
         // Auto-increment the public scholarship counter
         const settings = await getAllSettings();
         const current = parseInt(settings.stat_scholarships) || 0;
