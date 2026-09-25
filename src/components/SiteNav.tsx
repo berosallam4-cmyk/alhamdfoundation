@@ -21,9 +21,11 @@ export default function SiteNav() {
     <header className="sticky top-0 z-50 bg-emerald-900 text-white shadow-lg">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-400 text-xl font-bold text-emerald-900">
-            AF
-          </span>
+                    <img
+            src="/logo.png"
+            alt="Alhamd Foundation logo"
+            className="h-11 w-11 rounded-full bg-white object-contain p-0.5"
+          />
           <span>
             <span className="block text-lg font-bold leading-tight">
               Alhamd Foundation
