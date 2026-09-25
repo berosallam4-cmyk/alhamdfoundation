@@ -44,48 +44,45 @@ export async function POST(req: Request) {
           .set({ status })
           .where(eq(scholarshipApplications.id, Number(body.id)));
 
-        // Send confirmation email to applicant if approved or selected (after response)
-        if (app && (status === "approved" || status === "selected")) {
-          after(async () => {
-            try {
-              const statusLabel = status === "selected" ? "🎉 CONGRATULATIONS: Selected for Scholarship!" : "✅ Approved for Scholarship Announcement";
-              await sendEmail({
-                to: app.email,
-                subject: `${statusLabel} — Alhamd Foundation`,
-                html: `
-                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
-                    <div style="background-color: #064e3b; color: white; padding: 15px; border-radius: 8px; text-align: center;">
-                      <h2 style="margin: 0;">Alhamd Foundation</h2>
-                      <p style="margin: 5px 0 0 0; font-size: 13px; color: #fde68a;">Official Confirmation</p>
-                    </div>
-                    <p style="margin-top: 20px; font-size: 15px; color: #1e293b;">
-                      Dear <strong>${app.fullName}</strong>,
-                    </p>
-                    <p style="font-size: 14px; color: #334155; line-height: 1.6;">
-                      ${status === "selected"
-                        ? `Alhamdulillah! You have been <strong>officially selected</strong> for the Alhamd Foundation scholarship! Our team will contact your provided number (${app.phone}) regarding fee disbursement.`
-                        : `Your application (#${app.id}) has been reviewed and <strong>APPROVED</strong>. You are in the active scholarship cycle.`}
-                    </p>
-                    <div style="background-color: #f0fdf4; border-left: 4px solid #16a34a; padding: 12px; margin: 15px 0; font-size: 13px;">
-                      <p style="margin: 0;"><strong>Student:</strong> ${app.fullName} s/o ${app.fatherName}</p>
-                      <p style="margin: 4px 0 0 0;"><strong>University:</strong> ${app.university} (${app.semester})</p>
-                      <p style="margin: 4px 0 0 0;"><strong>Semester Fee:</strong> Rs. ${app.perSemesterFee.toLocaleString("en-PK")}</p>
-                      <p style="margin: 4px 0 0 0;"><strong>Status:</strong> ${status.toUpperCase()}</p>
-                    </div>
-                    <p style="font-size: 13px; color: #64748b;">
-                      For any inquiries, contact: alhamdfoundation2012@gmail.com
-                    </p>
-                  </div>
-                `,
-              });
-            } catch (e) {
-              console.error("Status change email failed:", e);
-            }
-          });
-        }
+               // Send the admin-editable template email for this status change
+        if (app) {
+          const tplKey =
+            status === "approved"
+              ? "approve"
+              : status === "selected"
+              ? "lucky"
+              : status === "rejected"
+              ? "reject"
+              : status === "pending"
+              ? "withdraw"
+              : null;
 
-        return NextResponse.json({ ok: true });
-      }
+          if (tplKey) {
+            after(async () => {
+              try {
+                await sendTemplateEmail({
+                  key: tplKey,
+                  to: app.email,
+                  vars: {
+                    id: app.id,
+                    name: app.fullName,
+                    fatherName: app.fatherName,
+                    cnic: app.cnic,
+                    phone: app.phone,
+                    email: app.email,
+                    university: app.university,
+                    semester: app.semester,
+                    city: app.city,
+                    fee: app.perSemesterFee.toLocaleString("en-PK"),
+                    reason: String(body.reason || ""),
+                  },
+                });
+              } catch (e) {
+                console.error("Status change email failed:", e);
+              }
+            });
+          }
+        }
 
       case "deleteApplication":
         await db
