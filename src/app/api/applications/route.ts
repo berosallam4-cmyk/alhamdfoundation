@@ -1,8 +1,8 @@
 import { NextResponse, after } from "next/server";
 import { db } from "@/db";
 import { scholarshipApplications } from "@/db/schema";
-import { sendEmail } from "@/lib/mailer";
 import { getAllSettings } from "@/lib/settings";
+import { sendTemplateEmail } from "@/lib/emailTemplates";
 
 // Allow enough time on serverless hosts (Vercel) to store images + send emails.
 export const maxDuration = 30;
@@ -86,72 +86,39 @@ export async function POST(req: Request) {
     after(async () => {
       try {
         const settings = await getAllSettings();
-        const foundationMail = settings.notification_email || "alhamdfoundation2012@gmail.com";
+        const foundationMail =
+          settings.notification_email || "alhamdfoundation2012@gmail.com";
+
+        const vars = {
+          id: row.id,
+          name: fullName,
+          fatherName,
+          cnic,
+          phone,
+          email,
+          university,
+          semester,
+          city,
+          fee: perSemesterFee.toLocaleString("en-PK"),
+          guardianProfession,
+          familyMembers,
+          reason: "",
+        };
 
         // 1. Notification to Foundation
-        await sendEmail({
+        await sendTemplateEmail({
+          key: "new_admin",
           to: foundationMail,
-          subject: `🎓 New Scholarship Application #${row.id} — ${fullName}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
-              <div style="background-color: #064e3b; color: white; padding: 15px; border-radius: 8px; text-align: center;">
-                <h2 style="margin: 0;">Alhamd Foundation</h2>
-                <p style="margin: 5px 0 0 0; font-size: 13px; color: #fde68a;">New Scholarship Application Received</p>
-              </div>
-              <h3 style="color: #064e3b; margin-top: 20px;">Application #${row.id} Details:</h3>
-              <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                <tr><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Student Name:</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${fullName}</td></tr>
-                <tr><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Father Name:</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${fatherName}</td></tr>
-                <tr><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">CNIC / B-Form:</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${cnic}</td></tr>
-                <tr><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Phone:</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${phone}</td></tr>
-                <tr><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Email:</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${email}</td></tr>
-                <tr><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">University:</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${university}</td></tr>
-                <tr><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Semester:</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${semester}</td></tr>
-                <tr><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Semester Fee:</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">Rs. ${perSemesterFee.toLocaleString("en-PK")} PKR</td></tr>
-                <tr><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">City:</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${city}</td></tr>
-                <tr><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Guardian Profession:</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${guardianProfession}</td></tr>
-                <tr><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Family Members:</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${familyMembers}</td></tr>
-              </table>
-              <p style="margin-top: 20px; font-size: 13px; color: #64748b;">
-                You can review documents (student photo, ID cards, fee voucher, and payment screenshot) directly inside the <strong>Admin Panel</strong>.
-              </p>
-            </div>
-          `,
+          vars,
+          settings,
         });
 
         // 2. Confirmation to Student
-        await sendEmail({
+        await sendTemplateEmail({
+          key: "new_student",
           to: email,
-          subject: `✅ Application Received #${row.id} — Alhamd Foundation Scholarship`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
-              <div style="background-color: #064e3b; color: white; padding: 15px; border-radius: 8px; text-align: center;">
-                <h2 style="margin: 0;">Alhamd Foundation</h2>
-                <p style="margin: 5px 0 0 0; font-size: 13px; color: #fde68a;">Serving Humanity Since 2012</p>
-              </div>
-              <p style="margin-top: 20px; font-size: 15px; color: #1e293b;">
-                Dear <strong>${fullName}</strong>,
-              </p>
-              <p style="font-size: 14px; color: #334155; line-height: 1.6;">
-                Your scholarship application (<strong>#${row.id}</strong>) has been successfully received by <strong>Alhamd Foundation</strong>.
-              </p>
-              <div style="background-color: #f8fafc; border-left: 4px solid #059669; padding: 12px; margin: 15px 0; font-size: 13px; color: #334155;">
-                <p style="margin: 0;"><strong>Status:</strong> Under Review</p>
-                <p style="margin: 4px 0 0 0;"><strong>University:</strong> ${university} (${semester})</p>
-                <p style="margin: 4px 0 0 0;"><strong>Application Fee:</strong> Received</p>
-              </div>
-              <p style="font-size: 14px; color: #334155; line-height: 1.6;">
-                Our committee will review your documents and verify the fee voucher. Selection announcements are made every 6 months.
-              </p>
-              <p style="font-size: 14px; color: #064e3b; font-weight: bold; margin-top: 20px;">
-                May Allah grant you success in your studies!
-              </p>
-              <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-              <p style="font-size: 12px; color: #94a3b8; text-align: center;">
-                Alhamd Foundation • Email: alhamdfoundation2012@gmail.com
-              </p>
-            </div>
-          `,
+          vars,
+          settings,
         });
       } catch (err) {
         console.error("Async email dispatch error:", err);
