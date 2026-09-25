@@ -1,4 +1,4 @@
-\import { db } from "@/db";
+import { db } from "@/db";
 import { settings } from "@/db/schema";
 
 export const SETTING_DEFAULTS: Record<string, string> = {
