@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatPKR, formatPKT } from "@/lib/format";
 import { fileToDataUrl } from "@/lib/imageUpload";
+import { TEMPLATE_LIST } from "@/lib/emailTemplates";
 
 /* ---------- Types ---------- */
 type Application = {
@@ -86,6 +87,7 @@ const TABS = [
   ["reviews", "⭐", "Reviews (143+)"],
   ["images", "🖼️", "Website Images"],
   ["email", "✉️", "Email & Notifications"],
+  ["templates", "📝", "Email Templates"],
   ["settings", "⚙️", "Site Settings"],
 ] as const;
 
@@ -292,6 +294,7 @@ export default function AdminPanel() {
           {tab === "reviews" && <Reviews data={data} act={act} />}
           {tab === "images" && <ImagesTab data={data} act={act} />}
           {tab === "email" && <EmailTab data={data} act={act} />}
+          {tab === "templates" && <EmailTemplatesTab data={data} act={act} />}
           {tab === "settings" && <Settings data={data} act={act} />}
         </main>
       </div>
@@ -763,6 +766,205 @@ function EmailTab({ data, act }: { data: AdminData; act: ActFn }) {
   );
 }
 
+/* ---------- Email Templates Tab ---------- */
+function EmailTemplatesTab({ data, act }: { data: AdminData; act: ActFn }) {
+  const [s, setS] = useState<Record<string, string>>({ ...data.settings });
+  const [saving, setSaving] = useState(false);
+  const [open, setOpen] = useState<string | null>("new_admin");
+
+  const shortcodes = [
+    "{{name}}",
+    "{{id}}",
+    "{{fatherName}}",
+    "{{cnic}}",
+    "{{phone}}",
+    "{{email}}",
+    "{{university}}",
+    "{{semester}}",
+    "{{fee}}",
+    "{{city}}",
+    "{{reason}}",
+  ];
+
+  const val = (k: string) => s[k] ?? "";
+  const set = (k: string, v: string) => setS((p) => ({ ...p, [k]: v }));
+
+  async function save() {
+    setSaving(true);
+    const payload: Record<string, string> = {
+      email_brand_title: val("email_brand_title"),
+      email_brand_tagline: val("email_brand_tagline"),
+      email_footer: val("email_footer"),
+    };
+    for (const t of TEMPLATE_LIST) {
+      payload[`tpl_${t.key}_enabled`] = val(`tpl_${t.key}_enabled`) || "true";
+      payload[`tpl_${t.key}_subject`] = val(`tpl_${t.key}_subject`);
+      payload[`tpl_${t.key}_body`] = val(`tpl_${t.key}_body`);
+    }
+    await act("updateSettings", { settings: payload });
+    setSaving(false);
+  }
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-white">📝 Email Templates</h1>
+          <p className="mt-1 text-sm text-slate-400">
+            Control exactly what each automated email says, and turn any of them ON or OFF.
+          </p>
+        </div>
+        <button
+          onClick={save}
+          disabled={saving}
+          className="rounded-xl bg-emerald-600 px-6 py-2.5 font-extrabold text-white hover:bg-emerald-500 disabled:opacity-50 transition"
+        >
+          {saving ? "Saving…" : "💾 Save All Templates"}
+        </button>
+      </div>
+
+      {/* Shortcode helper */}
+      <div className="rounded-2xl border border-emerald-900/50 bg-emerald-950/30 p-5">
+        <h3 className="font-extrabold text-amber-300 text-sm">
+          Available Shortcodes
+        </h3>
+        <p className="mt-1 text-xs text-emerald-100/80">
+          Paste any of these inside a subject or message — they are automatically replaced with the student&apos;s real details.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {shortcodes.map((c) => (
+            <span
+              key={c}
+              className="rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1 font-mono text-[11px] text-emerald-300"
+            >
+              {c}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Branding */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-4">
+        <div>
+          <h2 className="font-extrabold text-white text-base">
+            Email Branding (header &amp; footer of every email)
+          </h2>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">
+              Header Title
+            </label>
+            <input
+              value={val("email_brand_title")}
+              onChange={(e) => set("email_brand_title", e.target.value)}
+              className={`${inputCls} mt-1`}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">
+              Header Tagline
+            </label>
+            <input
+              value={val("email_brand_tagline")}
+              onChange={(e) => set("email_brand_tagline", e.target.value)}
+              className={`${inputCls} mt-1`}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="text-xs font-bold uppercase text-slate-400">
+              Footer Line
+            </label>
+            <input
+              value={val("email_footer")}
+              onChange={(e) => set("email_footer", e.target.value)}
+              className={`${inputCls} mt-1`}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Each template */}
+      {TEMPLATE_LIST.map((t) => {
+        const enabled = (val(`tpl_${t.key}_enabled`) || "true") === "true";
+        const isOpen = open === t.key;
+        return (
+          <div
+            key={t.key}
+            className="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+              <button
+                onClick={() => setOpen(isOpen ? null : t.key)}
+                className="flex-1 text-left"
+              >
+                <div className="font-extrabold text-white">{t.label}</div>
+                <div className="text-xs text-slate-400 mt-0.5">{t.desc}</div>
+              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    set(`tpl_${t.key}_enabled`, enabled ? "false" : "true")
+                  }
+                  className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
+                    enabled
+                      ? "bg-emerald-500 text-emerald-950"
+                      : "bg-slate-800 text-slate-400 border border-slate-700"
+                  }`}
+                >
+                  {enabled ? "ON" : "OFF"}
+                </button>
+                <button
+                  onClick={() => setOpen(isOpen ? null : t.key)}
+                  className={`${btnSm} bg-slate-800 text-slate-300 border border-slate-700`}
+                >
+                  {isOpen ? "Close" : "Edit"}
+                </button>
+              </div>
+            </div>
+
+            {isOpen && (
+              <div className="border-t border-slate-800 bg-slate-950/40 px-5 py-5 space-y-4">
+                <div>
+                  <label className="text-xs font-bold uppercase text-slate-400">
+                    Subject Line
+                  </label>
+                  <input
+                    value={val(`tpl_${t.key}_subject`)}
+                    onChange={(e) => set(`tpl_${t.key}_subject`, e.target.value)}
+                    className={`${inputCls} mt-1`}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold uppercase text-slate-400">
+                    Message Body
+                  </label>
+                  <textarea
+                    rows={12}
+                    value={val(`tpl_${t.key}_body`)}
+                    onChange={(e) => set(`tpl_${t.key}_body`, e.target.value)}
+                    className={`${inputCls} mt-1 leading-relaxed`}
+                  />
+                  <p className="mt-1 text-[11px] text-slate-500">
+                    Leave a blank line between paragraphs. The professional header, styling and footer are added automatically.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      <button
+        onClick={save}
+        disabled={saving}
+        className="w-full rounded-2xl bg-emerald-600 py-3.5 font-extrabold text-white hover:bg-emerald-500 disabled:opacity-60 transition shadow-xl"
+      >
+        {saving ? "Saving…" : "💾 Save All Templates"}
+      </button>
+    </div>
+  );
+}
 /* ---------- Reviews Tab (With Edit & Delete) ---------- */
 function Reviews({ data, act }: { data: AdminData; act: ActFn }) {
   const [editingReview, setEditingReview] = useState<Review | null>(null);
