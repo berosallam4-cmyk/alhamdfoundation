@@ -12,6 +12,7 @@ import {
 import { COOKIE_NAME, hashPassword, isAdmin } from "@/lib/auth";
 import { SETTING_DEFAULTS, getAllSettings, setSetting } from "@/lib/settings";
 import { sendEmail } from "@/lib/mailer";
+import { sendTemplateEmail } from "@/lib/emailTemplates";
 
 // Allow enough time on serverless hosts (Vercel) for emails & image saves.
 export const maxDuration = 30;
