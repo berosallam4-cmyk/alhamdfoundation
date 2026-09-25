@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatPKR, formatPKT } from "@/lib/format";
 import { fileToDataUrl } from "@/lib/imageUpload";
-import { TEMPLATE_LIST } from "@/lib/emailTemplates";
+import { TEMPLATE_LIST } from "@/lib/emailTemplateList";
 
 /* ---------- Types ---------- */
 type Application = {
