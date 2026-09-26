@@ -41,17 +41,7 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions): 
       from,
       to,
       subject,
-      html: `
-  <div style="text-align:center;padding:16px 8px 12px;font-family:Arial,sans-serif;">
-    <img
-      src="https://alhamdfoundation.vercel.app/logo.png"
-      alt="Alhamd Foundation"
-      width="200"
-      style="display:block;width:200px;max-width:90%;height:auto;margin:0 auto;border:0;"
-    />
-  </div>
-  ${html}
-`,
+      html,
       text: text || html.replace(/<[^>]*>/g, " "),
     });
 
