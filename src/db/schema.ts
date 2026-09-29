@@ -4,9 +4,10 @@ import {
   text,
   integer,
   timestamp,
+  boolean,
 } from "drizzle-orm/pg-core";
 
-// Key/value store for site settings, stats, payment details & page content.
+// Key/value store for site settings, stats, payment details, countdown & page content.
 // Editable from the admin panel and reflected instantly on the public site.
 export const settings = pgTable("settings", {
   key: text("key").primaryKey(),
@@ -83,6 +84,42 @@ export const volunteers = pgTable("volunteers", {
   phone: text("phone").notNull(),
   email: text("email"),
   motivation: text("motivation").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// NAYE PROGRAMS (e.g. Laptop Scheme, IT Courses, etc.)
+export const programs = pgTable("programs", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(), // e.g. "Free Laptop Scheme 2025"
+  slug: text("slug").notNull().unique(), // e.g. "laptop-scheme"
+  category: text("category").notNull().default("general"),
+  description: text("description").notNull(),
+  bannerImage: text("banner_image"),
+  deadline: timestamp("deadline", { withTimezone: true }),
+  isActive: boolean("is_active").notNull().default(true),
+  showOnHome: boolean("show_on_home").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// Jo log Naye Programs (Laptop Scheme etc) me apply karenge
+export const programApplications = pgTable("program_applications", {
+  id: serial("id").primaryKey(),
+  programId: integer("program_id").notNull(),
+  programSlug: text("program_slug").notNull(),
+  fullName: text("full_name").notNull(),
+  fatherName: text("father_name").notNull(),
+  cnic: text("cnic").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email"),
+  city: text("city").notNull(),
+  institution: text("institution"),
+  status: text("status").notNull().default("pending"), // pending | approved | rejected | selected
+  notes: text("notes"),
+  screenshot: text("screenshot"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
