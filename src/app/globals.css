@@ -1,31 +1,13 @@
 @import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Naskh+Arabic:wght@500;600;700&display=swap");
-
-body {
-  font-family: var(--font-body), "Segoe UI", sans-serif;
-  font-feature-settings: "kern" 1, "liga" 1;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-heading), var(--font-body), sans-serif;
-  letter-spacing: -0.025em;
-}
+@import url("https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700&family=Noto+Nastaliq+Urdu:wght@400;600&display=swap");
 
 .font-arabic {
   font-family: "Amiri", serif;
-  line-height: 2;
 }
 
 .font-urdu {
-  font-family: "Noto Naskh Arabic", serif;
-  line-height: 2;
+  font-family: "Noto Nastaliq Urdu", serif;
+  line-height: 2.2;
 }
 
 html {
