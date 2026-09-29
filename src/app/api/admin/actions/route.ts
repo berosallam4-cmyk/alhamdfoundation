@@ -3,6 +3,8 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
   donations,
+  programApplications,
+  programs,
   rashanFamilies,
   rashanItems,
   reviews,
@@ -10,7 +12,7 @@ import {
   volunteers,
 } from "@/db/schema";
 import { COOKIE_NAME, hashPassword, isAdmin } from "@/lib/auth";
-import { SETTING_DEFAULTS, getAllSettings, setSetting } from "@/lib/settings";
+import { getAllSettings, setSetting } from "@/lib/settings";
 import { sendEmail } from "@/lib/mailer";
 import { sendTemplateEmail } from "@/lib/emailTemplates";
 
@@ -29,6 +31,7 @@ export async function POST(req: Request) {
 
   try {
     switch (body.action as string) {
+      /* ==================== SCHOLARSHIP APPLICATIONS ==================== */
       case "setApplicationStatus": {
         const status = String(body.status);
         if (!["pending", "approved", "rejected", "selected"].includes(status)) {
@@ -44,7 +47,7 @@ export async function POST(req: Request) {
           .set({ status })
           .where(eq(scholarshipApplications.id, Number(body.id)));
 
-               // Send the admin-editable template email for this status change
+        // Send the admin-editable template email for this status change
         if (app) {
           const tplKey =
             status === "approved"
@@ -83,7 +86,7 @@ export async function POST(req: Request) {
             });
           }
         }
-                return NextResponse.json({ ok: true });
+        return NextResponse.json({ ok: true });
       }
 
       case "deleteApplication":
@@ -117,7 +120,7 @@ export async function POST(req: Request) {
             .set({ status: "selected" })
             .where(eq(scholarshipApplications.id, w.id));
         }
-                // Send the editable "lucky" template to each winner
+        // Send the editable "lucky" template to each winner
         after(async () => {
           for (const w of winners) {
             try {
@@ -160,6 +163,99 @@ export async function POST(req: Request) {
         });
       }
 
+      /* ==================== PROGRAMS (LAPTOP SCHEME ETC) ==================== */
+      case "addProgram": {
+        const title = String(body.title || "").trim();
+        let slug = String(body.slug || "")
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+
+        if (!slug) {
+          slug = title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "");
+        }
+
+        if (!title) {
+          return NextResponse.json({ error: "Title is required" }, { status: 400 });
+        }
+
+        let deadlineDate: Date | null = null;
+        if (body.deadline) {
+          const d = new Date(body.deadline);
+          if (!isNaN(d.getTime())) deadlineDate = d;
+        }
+
+        const [newProg] = await db
+          .insert(programs)
+          .values({
+            title,
+            slug,
+            category: String(body.category || "general"),
+            description: String(body.description || ""),
+            bannerImage: body.bannerImage ? String(body.bannerImage) : null,
+            deadline: deadlineDate,
+            isActive: body.isActive !== false,
+            showOnHome: body.showOnHome !== false,
+          })
+          .returning();
+
+        return NextResponse.json({ ok: true, program: newProg });
+      }
+
+      case "updateProgram": {
+        const id = Number(body.id);
+        const title = String(body.title || "").trim();
+        const slug = String(body.slug || "").trim().toLowerCase();
+
+        let deadlineDate: Date | null = null;
+        if (body.deadline) {
+          const d = new Date(body.deadline);
+          if (!isNaN(d.getTime())) deadlineDate = d;
+        }
+
+        await db
+          .update(programs)
+          .set({
+            title,
+            slug,
+            category: String(body.category || "general"),
+            description: String(body.description || ""),
+            bannerImage: body.bannerImage ? String(body.bannerImage) : null,
+            deadline: deadlineDate,
+            isActive: Boolean(body.isActive),
+            showOnHome: Boolean(body.showOnHome),
+          })
+          .where(eq(programs.id, id));
+
+        return NextResponse.json({ ok: true });
+      }
+
+      case "deleteProgram": {
+        await db.delete(programs).where(eq(programs.id, Number(body.id)));
+        return NextResponse.json({ ok: true });
+      }
+
+      case "setProgramAppStatus": {
+        const status = String(body.status);
+        await db
+          .update(programApplications)
+          .set({ status, notes: body.notes ? String(body.notes) : null })
+          .where(eq(programApplications.id, Number(body.id)));
+        return NextResponse.json({ ok: true });
+      }
+
+      case "deleteProgramApp": {
+        await db
+          .delete(programApplications)
+          .where(eq(programApplications.id, Number(body.id)));
+        return NextResponse.json({ ok: true });
+      }
+
+      /* ==================== RASHAN ==================== */
       case "addRashanItem": {
         const [row] = await db
           .insert(rashanItems)
@@ -220,6 +316,7 @@ export async function POST(req: Request) {
           .where(eq(rashanFamilies.id, Number(body.id)));
         return NextResponse.json({ ok: true });
 
+      /* ==================== REVIEWS ==================== */
       case "updateReview": {
         const id = Number(body.id);
         const name = String(body.name || "").trim();
@@ -243,6 +340,19 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true });
       }
 
+      case "deleteReview":
+        await db.delete(reviews).where(eq(reviews.id, Number(body.id)));
+        return NextResponse.json({ ok: true });
+
+      case "deleteDonation":
+        await db.delete(donations).where(eq(donations.id, Number(body.id)));
+        return NextResponse.json({ ok: true });
+
+      case "deleteVolunteer":
+        await db.delete(volunteers).where(eq(volunteers.id, Number(body.id)));
+        return NextResponse.json({ ok: true });
+
+      /* ==================== EMAIL & SETTINGS ==================== */
       case "testEmail": {
         const to = String(body.to || "alhamdfoundation2012@gmail.com");
         const res = await sendEmail({
@@ -260,18 +370,6 @@ export async function POST(req: Request) {
         return NextResponse.json(res);
       }
 
-      case "deleteReview":
-        await db.delete(reviews).where(eq(reviews.id, Number(body.id)));
-        return NextResponse.json({ ok: true });
-
-      case "deleteDonation":
-        await db.delete(donations).where(eq(donations.id, Number(body.id)));
-        return NextResponse.json({ ok: true });
-
-      case "deleteVolunteer":
-        await db.delete(volunteers).where(eq(volunteers.id, Number(body.id)));
-        return NextResponse.json({ ok: true });
-
       case "updateSettings": {
         const updates = body.settings as Record<string, string>;
         if (!updates || typeof updates !== "object") {
@@ -279,8 +377,7 @@ export async function POST(req: Request) {
         }
         let newPassword: string | null = null;
         for (const [key, value] of Object.entries(updates)) {
-          if (!(key in SETTING_DEFAULTS)) continue; // only known keys
-          const val = String(value);
+          const val = String(value ?? "");
           if (key === "admin_password") {
             if (!val.trim() || val.trim().length < 6) continue;
             newPassword = val.trim();
