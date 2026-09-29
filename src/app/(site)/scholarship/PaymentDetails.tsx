@@ -119,7 +119,7 @@ export default function PaymentDetails({
                     {isBank ? "Account Number / IBAN" : "Account Number"}
                   </div>
                   <div className="mt-1 flex items-center justify-between gap-3">
-                    <div className="font-mono text-xl font-extrabold text-emerald-900 break-all">
+                    <div className="font-num text-xl font-extrabold text-emerald-900 break-all">
                       {accountNumber}
                     </div>
                     <button
