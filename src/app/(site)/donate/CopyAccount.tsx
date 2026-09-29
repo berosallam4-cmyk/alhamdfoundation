@@ -39,7 +39,7 @@ export default function CopyAccount({
         <button
           type="button"
           onClick={copy}
-          className="font-mono text-lg font-extrabold text-emerald-800"
+          className="font-num text-lg font-extrabold text-emerald-800"
           title="Number copy karne ke liye click karo"
         >
           {value}
