@@ -28,6 +28,37 @@ type Application = {
   status: string;
   createdAt: string;
 };
+
+type Program = {
+  id: number;
+  title: string;
+  slug: string;
+  category: string;
+  description: string;
+  bannerImage: string | null;
+  deadline: string | null;
+  isActive: boolean;
+  showOnHome: boolean;
+  createdAt: string;
+};
+
+type ProgramApplication = {
+  id: number;
+  programId: number;
+  programSlug: string;
+  fullName: string;
+  fatherName: string;
+  cnic: string;
+  phone: string;
+  email: string | null;
+  city: string;
+  institution: string | null;
+  status: string;
+  notes: string | null;
+  screenshot: string | null;
+  createdAt: string;
+};
+
 type Donation = {
   id: number;
   purpose: string;
@@ -35,6 +66,7 @@ type Donation = {
   screenshot: string;
   createdAt: string;
 };
+
 type Volunteer = {
   id: number;
   fullName: string;
@@ -45,6 +77,7 @@ type Volunteer = {
   motivation: string;
   createdAt: string;
 };
+
 type Review = { id: number; name: string; message: string; createdAt: string };
 type RashanItem = { id: number; name: string; quantity: string; price: number };
 type Family = {
@@ -56,9 +89,12 @@ type Family = {
   notes: string | null;
   createdAt: string;
 };
+
 type AdminData = {
   settings: Record<string, string>;
   applications: Application[];
+  programs: Program[];
+  programApplications: ProgramApplication[];
   donations: Donation[];
   volunteers: Volunteer[];
   reviews: Review[];
@@ -78,7 +114,10 @@ type ActFn = (
 
 const TABS = [
   ["dashboard", "📊", "Dashboard"],
-  ["applications", "🎓", "Applications"],
+  ["scholarship_control", "⏳", "Scholarship & Countdown"],
+  ["programs", "💻", "Programs (Laptop Scheme)"],
+  ["website_cms", "📝", "Website Content CMS"],
+  ["applications", "🎓", "Scholarship Applications"],
   ["draw", "🎯", "Lucky Draw"],
   ["donations", "💰", "Donations"],
   ["rashan", "🛒", "Rashan Items"],
@@ -86,8 +125,8 @@ const TABS = [
   ["volunteers", "🤝", "Volunteers"],
   ["reviews", "⭐", "Reviews (143+)"],
   ["images", "🖼️", "Website Images"],
-  ["email", "✉️", "Email & Notifications"],
-  ["templates", "📝", "Email Templates"],
+  ["email", "✉️", "Email & Alerts"],
+  ["templates", "📋", "Email Templates"],
   ["settings", "⚙️", "Site Settings"],
 ] as const;
 
@@ -149,7 +188,8 @@ export default function AdminPanel() {
     );
   }
 
-  const pendingApps = data.applications.filter((a) => a.status === "pending").length;
+  const pendingApps = (data.applications || []).filter((a) => a.status === "pending").length;
+  const pendingProgApps = (data.programApplications || []).filter((a) => a.status === "pending").length;
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-950 text-slate-100 lg:flex-row">
@@ -167,7 +207,7 @@ export default function AdminPanel() {
               </div>
               <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Admin Management</span>
+                <span>Super Admin Panel</span>
               </div>
             </div>
           </div>
@@ -212,14 +252,14 @@ export default function AdminPanel() {
                     {pendingApps}
                   </span>
                 )}
-                {key === "donations" && data.donations.length > 0 && (
-                  <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-slate-400 group-hover:text-slate-200">
-                    {data.donations.length}
+                {key === "programs" && pendingProgApps > 0 && (
+                  <span className="rounded-full bg-sky-400 px-2 py-0.5 text-[11px] font-extrabold text-slate-950">
+                    {pendingProgApps}
                   </span>
                 )}
-                {key === "reviews" && (
-                  <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-slate-400">
-                    {data.reviews.length}
+                {key === "scholarship_control" && data.settings.scholarship_results_published === "true" && (
+                  <span className="rounded-full bg-emerald-400 px-2 py-0.5 text-[10px] font-extrabold text-emerald-950 animate-pulse">
+                    LIVE
                   </span>
                 )}
               </button>
@@ -253,7 +293,7 @@ export default function AdminPanel() {
         <header className="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800/80 bg-slate-900/80 px-6 py-3.5 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <span className="text-xs uppercase tracking-wider font-extrabold text-emerald-400">
-              Section
+              Admin Section
             </span>
             <span className="text-slate-600">/</span>
             <h2 className="text-sm font-bold text-white capitalize">
@@ -262,16 +302,12 @@ export default function AdminPanel() {
           </div>
 
           <div className="flex items-center gap-3 text-xs">
-            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-3 py-1 font-medium text-slate-300 border border-slate-700/60">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <span>alhamdfoundation2012@gmail.com</span>
-            </span>
             <a
               href="/"
               target="_blank"
-              className="rounded-lg bg-emerald-600/20 px-3 py-1.5 font-bold text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white transition"
+              className="rounded-lg bg-emerald-600/20 px-3.5 py-1.5 font-bold text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white transition"
             >
-              Open Site ↗
+              Open Live Site ↗
             </a>
           </div>
         </header>
@@ -285,6 +321,9 @@ export default function AdminPanel() {
 
         <main className="flex-1 p-6 lg:p-8 max-w-7xl">
           {tab === "dashboard" && <Dashboard data={data} setTab={setTab} />}
+          {tab === "scholarship_control" && <ScholarshipControlTab data={data} act={act} />}
+          {tab === "programs" && <ProgramsTab data={data} act={act} />}
+          {tab === "website_cms" && <WebsiteCmsTab data={data} act={act} />}
           {tab === "applications" && <Applications data={data} act={act} />}
           {tab === "draw" && <Draw data={data} act={act} />}
           {tab === "donations" && <Donations data={data} act={act} />}
@@ -302,6 +341,765 @@ export default function AdminPanel() {
   );
 }
 
+/* =========================================================================
+   1. SCHOLARSHIP COUNTDOWN & RESULTS CONTROL TAB (Main Feature)
+   ========================================================================= */
+function ScholarshipControlTab({ data, act }: { data: AdminData; act: ActFn }) {
+  const [s, setS] = useState({
+    scholarship_countdown_enabled: data.settings.scholarship_countdown_enabled || "true",
+    scholarship_deadline: data.settings.scholarship_deadline || "2025-06-30T23:59",
+    scholarship_results_published: data.settings.scholarship_results_published || "false",
+    scholarship_result_title: data.settings.scholarship_result_title || "Official Scholarship Winners List",
+    scholarship_result_message: data.settings.scholarship_result_message || "Mubarak to all selected scholars! Our team will contact your university for fee transfer.",
+    scholarship_closed_message: data.settings.scholarship_closed_message || "Scholarship registration is now closed. Result announcement will be made shortly.",
+  });
+  const [saving, setSaving] = useState(false);
+
+  const selectedStudents = (data.applications || []).filter((a) => a.status === "selected");
+
+  async function save() {
+    setSaving(true);
+    await act("updateSettings", { settings: s });
+    setSaving(false);
+  }
+
+  async function togglePublish() {
+    const nextState = s.scholarship_results_published === "true" ? "false" : "true";
+    if (nextState === "true") {
+      if (!confirm(`Are you sure you want to PUBLISH the results now? All ${selectedStudents.length} selected students will be visible on the public website.`)) {
+        return;
+      }
+    }
+    const updated = { ...s, scholarship_results_published: nextState };
+    setS(updated);
+    await act("updateSettings", { settings: updated });
+  }
+
+  return (
+    <div className="space-y-6 max-w-5xl">
+      <div>
+        <h1 className="text-2xl font-black text-white">⏳ Scholarship Countdown & Results Controller</h1>
+        <p className="mt-1 text-sm text-slate-400">
+          Set the application deadline timer. When you are ready, click <b>Publish Results</b> to show the selected winners on the public website.
+        </p>
+      </div>
+
+      {/* Big Status Banner */}
+      <div className={`rounded-2xl border p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 ${
+        s.scholarship_results_published === "true"
+          ? "border-emerald-500/60 bg-emerald-950/40"
+          : "border-amber-500/60 bg-amber-950/40"
+      }`}>
+        <div>
+          <div className="flex items-center gap-2">
+            <span className={`h-3 w-3 rounded-full ${s.scholarship_results_published === "true" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+            <h3 className="text-lg font-black text-white">
+              Public Status: {s.scholarship_results_published === "true" ? "🎉 RESULTS ARE CURRENTLY PUBLISHED LIVE" : "⏳ REGISTRATION / COUNTDOWN PHASE"}
+            </h3>
+          </div>
+          <p className="text-xs text-slate-300 mt-1 max-w-2xl">
+            {s.scholarship_results_published === "true"
+              ? `The public website is displaying the official list of ${selectedStudents.length} selected students.`
+              : "Results are currently hidden. The website shows the application form and the live countdown."}
+          </p>
+        </div>
+
+        <button
+          onClick={togglePublish}
+          className={`shrink-0 rounded-xl px-6 py-3 font-black text-sm shadow-xl transition ${
+            s.scholarship_results_published === "true"
+              ? "bg-red-600 hover:bg-red-500 text-white"
+              : "bg-emerald-500 hover:bg-emerald-400 text-emerald-950"
+          }`}
+        >
+          {s.scholarship_results_published === "true" ? "🔒 Hide / Unpublish Results" : "📢 PUBLISH RESULTS NOW"}
+        </button>
+      </div>
+
+      {/* Timer & Settings Form */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-5">
+        <h3 className="font-extrabold text-white text-base">⏰ Deadline & Countdown Configuration</h3>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">
+              Registration Deadline (Date & Time PKT)
+            </label>
+            <input
+              type="datetime-local"
+              value={s.scholarship_deadline}
+              onChange={(e) => setS({ ...s, scholarship_deadline: e.target.value })}
+              className={`${inputCls} mt-1`}
+            />
+            <span className="text-[11px] text-slate-500 mt-1 block">
+              The public countdown will tick towards this exact time.
+            </span>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">
+              Live Countdown Display
+            </label>
+            <select
+              value={s.scholarship_countdown_enabled}
+              onChange={(e) => setS({ ...s, scholarship_countdown_enabled: e.target.value })}
+              className={`${inputCls} mt-1`}
+            >
+              <option value="true">Active (Show Live Countdown Banner)</option>
+              <option value="false">Disabled (Hide Countdown)</option>
+            </select>
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="text-xs font-bold uppercase text-slate-400">
+              Closed Registration Message (Shown when deadline passes but results aren&apos;t published yet)
+            </label>
+            <textarea
+              rows={2}
+              value={s.scholarship_closed_message}
+              onChange={(e) => setS({ ...s, scholarship_closed_message: e.target.value })}
+              className={`${inputCls} mt-1`}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">
+              Result Announcement Heading
+            </label>
+            <input
+              value={s.scholarship_result_title}
+              onChange={(e) => setS({ ...s, scholarship_result_title: e.target.value })}
+              className={`${inputCls} mt-1`}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">
+              Result Message / Mubarak Note
+            </label>
+            <input
+              value={s.scholarship_result_message}
+              onChange={(e) => setS({ ...s, scholarship_result_message: e.target.value })}
+              className={`${inputCls} mt-1`}
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={save}
+          disabled={saving}
+          className="rounded-xl bg-emerald-600 px-6 py-2.5 font-bold text-white hover:bg-emerald-500 disabled:opacity-50 transition"
+        >
+          {saving ? "Saving…" : "💾 Save Countdown & Settings"}
+        </button>
+      </div>
+
+      {/* Selected Candidates Preview Table */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-extrabold text-white text-base">
+              🎓 Selected Scholarship Winners Pool ({selectedStudents.length})
+            </h3>
+            <p className="text-xs text-slate-400">
+              These students will be shown to the public when Results are published.
+            </p>
+          </div>
+        </div>
+
+        {selectedStudents.length === 0 ? (
+          <div className="rounded-xl border border-slate-800 bg-slate-950 p-6 text-center text-slate-500 text-sm">
+            No students have been marked as &apos;selected&apos; yet. Go to <b>Scholarship Applications</b> or <b>Lucky Draw</b> tab to select students.
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-slate-800 text-xs uppercase text-slate-500 bg-slate-900/50">
+                <tr>
+                  <th className="px-4 py-3">#</th>
+                  <th className="px-4 py-3">Student Name</th>
+                  <th className="px-4 py-3">Father Name</th>
+                  <th className="px-4 py-3">University</th>
+                  <th className="px-4 py-3">City</th>
+                  <th className="px-4 py-3">Fee / Semester</th>
+                  <th className="px-4 py-3">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedStudents.map((st, i) => (
+                  <tr key={st.id} className="border-b border-slate-800/60">
+                    <td className="px-4 py-3 text-slate-500 font-mono">{i + 1}</td>
+                    <td className="px-4 py-3 font-bold text-white">{st.fullName}</td>
+                    <td className="px-4 py-3 text-slate-300">{st.fatherName}</td>
+                    <td className="px-4 py-3 text-slate-300">{st.university}</td>
+                    <td className="px-4 py-3 text-slate-300">{st.city}</td>
+                    <td className="px-4 py-3 text-amber-300 font-bold">{formatPKR(st.perSemesterFee)}</td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => act("setApplicationStatus", { id: st.id, status: "approved" })}
+                        className={`${btnSm} bg-slate-800 text-amber-400 border border-slate-700 hover:bg-slate-700`}
+                        title="Remove from selected list and move back to approved"
+                      >
+                        Remove from Winner List
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   2. PROGRAMS MANAGER TAB (Laptop Scheme, IT Courses, etc.)
+   ========================================================================= */
+function ProgramsTab({ data, act }: { data: AdminData; act: ActFn }) {
+  const emptyProg = {
+    title: "",
+    slug: "",
+    category: "general",
+    description: "",
+    bannerImage: "",
+    deadline: "",
+    isActive: true,
+    showOnHome: true,
+  };
+  const [form, setForm] = useState(emptyProg);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [selectedProgId, setSelectedProgId] = useState<number | "all">("all");
+  const [saving, setSaving] = useState(false);
+
+  const programsList = data.programs || [];
+  const progApps = data.programApplications || [];
+
+  function startEdit(p: Program) {
+    setEditingId(p.id);
+    setForm({
+      title: p.title,
+      slug: p.slug,
+      category: p.category,
+      description: p.description,
+      bannerImage: p.bannerImage || "",
+      deadline: p.deadline ? new Date(p.deadline).toISOString().slice(0, 16) : "",
+      isActive: p.isActive,
+      showOnHome: p.showOnHome,
+    });
+  }
+
+  async function saveProg() {
+    if (!form.title.trim()) return alert("Program title is required");
+    setSaving(true);
+    if (editingId) {
+      await act("updateProgram", { id: editingId, ...form });
+    } else {
+      await act("addProgram", form);
+    }
+    setForm(emptyProg);
+    setEditingId(null);
+    setSaving(false);
+  }
+
+  const filteredApps =
+    selectedProgId === "all"
+      ? progApps
+      : progApps.filter((a) => a.programId === selectedProgId);
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-black text-white">💻 Programs & Schemes Manager</h1>
+        <p className="mt-1 text-sm text-slate-400">
+          Create new schemes (like <b>Free Laptop Scheme</b>, <b>Vocational Training</b>, <b>Rashan Drives</b>) and manage applications.
+        </p>
+      </div>
+
+      {/* Program Create/Edit Box */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4">
+        <h3 className="font-extrabold text-white text-base">
+          {editingId ? `✏️ Edit Program #${editingId}` : "+ Create New Program (e.g. Laptop Scheme 2025)"}
+        </h3>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">Program Title *</label>
+            <input
+              placeholder="e.g. Free Laptop Scheme 2025"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className={`${inputCls} mt-1`}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">URL Slug (unique)</label>
+            <input
+              placeholder="e.g. laptop-scheme"
+              value={form.slug}
+              onChange={(e) => setForm({ ...form, slug: e.target.value })}
+              className={`${inputCls} mt-1`}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">Category</label>
+            <select
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              className={`${inputCls} mt-1`}
+            >
+              <option value="education">Education / Tech</option>
+              <option value="rashan">Rashan & Food</option>
+              <option value="welfare">General Welfare</option>
+              <option value="skills">Skill Training</option>
+            </select>
+          </div>
+
+          <div className="lg:col-span-3">
+            <label className="text-xs font-bold uppercase text-slate-400">Program Details / Description</label>
+            <textarea
+              rows={3}
+              placeholder="Describe eligibility criteria, benefits, and how to apply..."
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className={`${inputCls} mt-1`}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">Banner Image URL</label>
+            <input
+              placeholder="https://... or /images/laptop.jpg"
+              value={form.bannerImage}
+              onChange={(e) => setForm({ ...form, bannerImage: e.target.value })}
+              className={`${inputCls} mt-1`}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">Last Date to Apply (Optional)</label>
+            <input
+              type="datetime-local"
+              value={form.deadline}
+              onChange={(e) => setForm({ ...form, deadline: e.target.value })}
+              className={`${inputCls} mt-1`}
+            />
+          </div>
+
+          <div className="flex items-center gap-6 pt-5">
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-300">
+              <input
+                type="checkbox"
+                checked={form.isActive}
+                onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
+                className="h-4 w-4 rounded accent-emerald-500"
+              />
+              Active Program (Accepting Applications)
+            </label>
+
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-300">
+              <input
+                type="checkbox"
+                checked={form.showOnHome}
+                onChange={(e) => setForm({ ...form, showOnHome: e.target.checked })}
+                className="h-4 w-4 rounded accent-emerald-500"
+              />
+              Show Card on Home Page
+            </label>
+          </div>
+        </div>
+
+        <div className="flex gap-2 pt-2">
+          <button
+            onClick={saveProg}
+            disabled={saving || !form.title}
+            className="rounded-xl bg-emerald-600 px-6 py-2.5 font-bold text-white hover:bg-emerald-500 disabled:opacity-50 transition"
+          >
+            {saving ? "Saving…" : editingId ? "Save Changes" : "+ Launch Program"}
+          </button>
+          {editingId && (
+            <button
+              onClick={() => {
+                setEditingId(null);
+                setForm(emptyProg);
+              }}
+              className="rounded-xl bg-slate-800 px-4 py-2.5 text-xs text-slate-300 hover:bg-slate-700"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Active Programs List */}
+      <div className="space-y-4">
+        <h3 className="font-extrabold text-white text-lg">Active Schemes & Programs ({programsList.length})</h3>
+
+        {programsList.length === 0 ? (
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center text-slate-400">
+            No custom programs created yet. Create your first one (e.g. &apos;Laptop Scheme&apos;) using the form above!
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {programsList.map((p) => {
+              const appCount = progApps.filter((a) => a.programId === p.id).length;
+              return (
+                <div key={p.id} className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="rounded-full bg-emerald-500/20 px-3 py-0.5 text-xs font-bold text-emerald-300 border border-emerald-500/30 capitalize">
+                      {p.category}
+                    </span>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${p.isActive ? "bg-emerald-950 text-emerald-400" : "bg-slate-800 text-slate-500"}`}>
+                      {p.isActive ? "● Active" : "○ Inactive"}
+                    </span>
+                  </div>
+
+                  <h4 className="font-black text-white text-base">{p.title}</h4>
+                  <p className="text-xs text-slate-300 line-clamp-2">{p.description}</p>
+
+                  <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
+                    <span>👥 <b>{appCount}</b> Applications</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => startEdit(p)}
+                        className={`${btnSm} bg-sky-600/20 text-sky-300 hover:bg-sky-600 hover:text-white`}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Delete program "${p.title}"?`)) act("deleteProgram", { id: p.id });
+                        }}
+                        className={`${btnSm} bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white`}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Program Applications Table */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 className="font-extrabold text-white text-lg">
+              📋 Scheme Applicants List ({filteredApps.length})
+            </h3>
+            <p className="text-xs text-slate-400">
+              Applications submitted for Laptop schemes and other programs.
+            </p>
+          </div>
+
+          <select
+            value={selectedProgId}
+            onChange={(e) => setSelectedProgId(e.target.value === "all" ? "all" : Number(e.target.value))}
+            className={`${inputCls} max-w-xs`}
+          >
+            <option value="all">All Programs</option>
+            {programsList.map((p) => (
+              <option key={p.id} value={p.id}>{p.title}</option>
+            ))}
+          </select>
+        </div>
+
+        {filteredApps.length === 0 ? (
+          <div className="rounded-xl border border-slate-800 bg-slate-950 p-6 text-center text-slate-500 text-sm">
+            No applications received for this program yet.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredApps.map((a) => (
+              <div key={a.id} className="rounded-xl border border-slate-800 bg-slate-950 p-4 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-extrabold text-white">
+                    {a.fullName} <span className="text-xs font-normal text-slate-400">s/o {a.fatherName}</span>
+                  </span>
+                  <span className="text-xs rounded px-2.5 py-0.5 font-bold uppercase bg-slate-800 text-amber-300">
+                    {a.status}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-300">
+                  <div><b>CNIC:</b> {a.cnic}</div>
+                  <div><b>Phone:</b> {a.phone}</div>
+                  <div><b>City:</b> {a.city}</div>
+                  <div><b>Institute:</b> {a.institution || "—"}</div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2 border-t border-slate-800">
+                  <button
+                    onClick={() => act("setProgramAppStatus", { id: a.id, status: "selected" })}
+                    className={`${btnSm} bg-sky-600 text-white`}
+                  >
+                    Select Beneficiary
+                  </button>
+                  <button
+                    onClick={() => act("setProgramAppStatus", { id: a.id, status: "approved" })}
+                    className={`${btnSm} bg-emerald-600 text-white`}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => act("setProgramAppStatus", { id: a.id, status: "rejected" })}
+                    className={`${btnSm} bg-red-600/60 text-white`}
+                  >
+                    Reject
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm("Delete applicant?")) act("deleteProgramApp", { id: a.id });
+                    }}
+                    className={`${btnSm} bg-slate-800 text-red-400 ml-auto`}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   3. FULL WEBSITE CONTENT CMS (Edit Any Text on the Site)
+   ========================================================================= */
+function WebsiteCmsTab({ data, act }: { data: AdminData; act: ActFn }) {
+  const [s, setS] = useState<Record<string, string>>({ ...data.settings });
+  const [saving, setSaving] = useState(false);
+  const [activeSection, setActiveSection] = useState<"home" | "scholarship" | "rashan" | "contact">("home");
+
+  const val = (k: string) => s[k] ?? "";
+  const set = (k: string, v: string) => setS((p) => ({ ...p, [k]: v }));
+
+  async function save() {
+    setSaving(true);
+    await act("updateSettings", { settings: s });
+    setSaving(false);
+  }
+
+  return (
+    <div className="space-y-6 max-w-5xl">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-white">📝 Website Content Editor (CMS)</h1>
+          <p className="mt-1 text-sm text-slate-400">
+            Edit any text, tagline, Urdu verses, or headings across your website instantly.
+          </p>
+        </div>
+        <button
+          onClick={save}
+          disabled={saving}
+          className="rounded-xl bg-emerald-600 px-6 py-2.5 font-black text-white hover:bg-emerald-500 disabled:opacity-50 transition shadow-lg"
+        >
+          {saving ? "Saving…" : "💾 Save Website Changes"}
+        </button>
+      </div>
+
+      {/* Page Selector Tabs */}
+      <div className="flex flex-wrap gap-2 border-b border-slate-800 pb-3">
+        {[
+          ["home", "🏠 Home Page Content"],
+          ["scholarship", "🎓 Scholarship Page Text"],
+          ["rashan", "🛒 Rashan Page Text"],
+          ["contact", "📞 Footer & Contact Details"],
+        ].map(([k, label]) => (
+          <button
+            key={k}
+            onClick={() => setActiveSection(k as typeof activeSection)}
+            className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
+              activeSection === k
+                ? "bg-emerald-600 text-white shadow"
+                : "bg-slate-900 text-slate-400 hover:text-white"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* HOME PAGE SECTION */}
+      {activeSection === "home" && (
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4">
+          <h3 className="font-extrabold text-white text-base">🏠 Home Page Hero & Sections</h3>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label className="text-xs font-bold uppercase text-slate-400">Main Top Banner Heading (Hero Title)</label>
+              <input
+                value={val("home_hero_title")}
+                placeholder="Serving Deserving Humanity with Dignity & Transparency"
+                onChange={(e) => set("home_hero_title", e.target.value)}
+                className={`${inputCls} mt-1`}
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="text-xs font-bold uppercase text-slate-400">Main Banner Sub-Text / Mission Line</label>
+              <textarea
+                rows={3}
+                value={val("home_hero_text")}
+                placeholder="Providing monthly rashan packages to 104+ families and merit-cum-need scholarships to university students across Pakistan since 2012."
+                onChange={(e) => set("home_hero_text", e.target.value)}
+                className={`${inputCls} mt-1`}
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold uppercase text-slate-400">Rashan Card Title</label>
+              <input
+                value={val("home_rashan_card_title") || "Monthly Rashan Package"}
+                onChange={(e) => set("home_rashan_card_title", e.target.value)}
+                className={`${inputCls} mt-1`}
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold uppercase text-slate-400">Scholarship Card Title</label>
+              <input
+                value={val("home_scholarship_card_title") || "University Student Scholarship"}
+                onChange={(e) => set("home_scholarship_card_title", e.target.value)}
+                className={`${inputCls} mt-1`}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SCHOLARSHIP SECTION */}
+      {activeSection === "scholarship" && (
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4">
+          <h3 className="font-extrabold text-white text-base">🎓 Scholarship Page Headings & Notes</h3>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="text-xs font-bold uppercase text-slate-400">Application Fee (PKR)</label>
+              <input
+                value={val("application_fee") || "300"}
+                onChange={(e) => set("application_fee", e.target.value)}
+                className={`${inputCls} mt-1`}
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold uppercase text-slate-400">Next Announcement Notice</label>
+              <input
+                value={val("next_announcement")}
+                placeholder="Every 6 months / 30 June"
+                onChange={(e) => set("next_announcement", e.target.value)}
+                className={`${inputCls} mt-1`}
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="text-xs font-bold uppercase text-slate-400">Scholarship Eligibility & Guidelines Note</label>
+              <textarea
+                rows={4}
+                value={val("scholarship_note")}
+                onChange={(e) => set("scholarship_note", e.target.value)}
+                className={`${inputCls} mt-1`}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RASHAN SECTION */}
+      {activeSection === "rashan" && (
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4">
+          <h3 className="font-extrabold text-white text-base">🛒 Rashan Program Description & Ayat</h3>
+
+          <div className="space-y-4">
+            <div>
+              <label className="text-xs font-bold uppercase text-slate-400">Rashan Intro Paragraph</label>
+              <textarea
+                rows={3}
+                value={val("rashan_intro")}
+                onChange={(e) => set("rashan_intro", e.target.value)}
+                className={`${inputCls} mt-1`}
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold uppercase text-slate-400">Quran Ayat (Arabic)</label>
+              <textarea
+                rows={2}
+                value={val("donate_ayat")}
+                onChange={(e) => set("donate_ayat", e.target.value)}
+                className={`${inputCls} mt-1 text-right font-serif text-lg`}
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold uppercase text-slate-400">Ayat Urdu Translation</label>
+              <textarea
+                rows={2}
+                value={val("donate_ayat_urdu")}
+                onChange={(e) => set("donate_ayat_urdu", e.target.value)}
+                className={`${inputCls} mt-1 text-right`}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CONTACT & FOOTER */}
+      {activeSection === "contact" && (
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4">
+          <h3 className="font-extrabold text-white text-base">📞 Official Contact, WhatsApp & Location</h3>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="text-xs font-bold uppercase text-slate-400">Official Foundation Email</label>
+              <input
+                value={val("contact_email") || "alhamdfoundation2012@gmail.com"}
+                onChange={(e) => set("contact_email", e.target.value)}
+                className={`${inputCls} mt-1`}
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold uppercase text-slate-400">WhatsApp / Helpline Number</label>
+              <input
+                value={val("contact_phone") || "+92 300 1234567"}
+                onChange={(e) => set("contact_phone", e.target.value)}
+                className={`${inputCls} mt-1`}
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="text-xs font-bold uppercase text-slate-400">Official Office Address</label>
+              <input
+                value={val("contact_address") || "Alhamd Foundation Head Office, Pakistan"}
+                onChange={(e) => set("contact_address", e.target.value)}
+                className={`${inputCls} mt-1`}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <button
+        onClick={save}
+        disabled={saving}
+        className="w-full rounded-2xl bg-emerald-600 py-3.5 font-extrabold text-white hover:bg-emerald-500 disabled:opacity-60 transition shadow-xl"
+      >
+        {saving ? "Saving Changes…" : "💾 Save All Changes to Live Website"}
+      </button>
+    </div>
+  );
+}
+
 /* ---------- Dashboard ---------- */
 function Dashboard({
   data,
@@ -310,40 +1108,48 @@ function Dashboard({
   data: AdminData;
   setTab: (t: (typeof TABS)[number][0]) => void;
 }) {
-  const pending = data.applications.filter((a) => a.status === "pending").length;
-  const approved = data.applications.filter((a) => a.status === "approved").length;
-  const selected = data.applications.filter((a) => a.status === "selected").length;
-  const rashanTotal = data.rashanItems.reduce((s, i) => s + i.price, 0);
+  const pending = (data.applications || []).filter((a) => a.status === "pending").length;
+  const approved = (data.applications || []).filter((a) => a.status === "approved").length;
+  const selected = (data.applications || []).filter((a) => a.status === "selected").length;
+  const rashanTotal = (data.rashanItems || []).reduce((s, i) => s + i.price, 0);
 
   const cards = [
     {
-      title: "Pending Applications",
-      count: pending,
-      desc: "Waiting for your review",
+      title: "Scholarship Control",
+      count: data.settings.scholarship_results_published === "true" ? "LIVE" : "OPEN",
+      desc: "Countdown & Result Announcement",
       color: "text-amber-400",
       bg: "bg-amber-400/10 border-amber-400/30",
-      tab: "applications",
+      tab: "scholarship_control",
     },
     {
-      title: "Approved Pool",
-      count: approved,
-      desc: "Ready for 6-month announcement",
-      color: "text-emerald-400",
-      bg: "bg-emerald-400/10 border-emerald-400/30",
+      title: "Active Programs",
+      count: (data.programs || []).length,
+      desc: "Laptop Scheme & other drives",
+      color: "text-sky-400",
+      bg: "bg-sky-400/10 border-sky-400/30",
+      tab: "programs",
+    },
+    {
+      title: "Pending Applications",
+      count: pending,
+      desc: "Scholarship applicant reviews",
+      color: "text-amber-400",
+      bg: "bg-amber-400/10 border-amber-400/30",
       tab: "applications",
     },
     {
       title: "Selected Beneficiaries",
       count: selected,
       desc: "Awarded scholarships",
-      color: "text-sky-400",
-      bg: "bg-sky-400/10 border-sky-400/30",
+      color: "text-emerald-400",
+      bg: "bg-emerald-400/10 border-emerald-400/30",
       tab: "applications",
     },
     {
       title: "Donation Proofs",
-      count: data.donations.length,
-      desc: "Submitted payment screenshots",
+      count: (data.donations || []).length,
+      desc: "Submitted payment receipts",
       color: "text-amber-300",
       bg: "bg-amber-500/10 border-amber-500/30",
       tab: "donations",
@@ -358,23 +1164,15 @@ function Dashboard({
     },
     {
       title: "Registered Families",
-      count: data.families.length,
-      desc: "In foundation database",
+      count: (data.families || []).length,
+      desc: "In rashan directory",
       color: "text-indigo-400",
       bg: "bg-indigo-500/10 border-indigo-500/30",
       tab: "families",
     },
     {
-      title: "Volunteer Registrations",
-      count: data.volunteers.length,
-      desc: "Free registrations across cities",
-      color: "text-teal-400",
-      bg: "bg-teal-500/10 border-teal-500/30",
-      tab: "volunteers",
-    },
-    {
       title: "Community Reviews",
-      count: data.reviews.length,
+      count: (data.reviews || []).length,
       desc: "Spanning 2012 to 2026",
       color: "text-yellow-400",
       bg: "bg-yellow-500/10 border-yellow-500/30",
@@ -417,19 +1215,21 @@ function Dashboard({
         <div className="mt-4 grid gap-4 sm:grid-cols-4 text-sm">
           <div className="rounded-xl bg-slate-800/80 p-3.5 border border-slate-700/60">
             <span className="text-xs text-slate-400 block font-medium">Public Rashan Families</span>
-            <span className="text-lg font-bold text-emerald-400">{data.settings.stat_families} Families</span>
+            <span className="text-lg font-bold text-emerald-400">{data.settings.stat_families || 104} Families</span>
           </div>
           <div className="rounded-xl bg-slate-800/80 p-3.5 border border-slate-700/60">
             <span className="text-xs text-slate-400 block font-medium">Public Scholarships</span>
-            <span className="text-lg font-bold text-amber-300">{data.settings.stat_scholarships} Awarded</span>
+            <span className="text-lg font-bold text-amber-300">{data.settings.stat_scholarships || 143} Awarded</span>
           </div>
           <div className="rounded-xl bg-slate-800/80 p-3.5 border border-slate-700/60">
             <span className="text-xs text-slate-400 block font-medium">Payment Account</span>
             <span className="text-lg font-bold text-sky-400">{data.settings.payment_method_type || "JazzCash"}</span>
           </div>
           <div className="rounded-xl bg-slate-800/80 p-3.5 border border-slate-700/60">
-            <span className="text-xs text-slate-400 block font-medium">Email Notification</span>
-            <span className="text-xs font-bold text-slate-200 truncate block mt-1">{data.settings.notification_email || "alhamdfoundation2012@gmail.com"}</span>
+            <span className="text-xs text-slate-400 block font-medium">Result Announcement Status</span>
+            <span className="text-xs font-bold text-slate-200 truncate block mt-1">
+              {data.settings.scholarship_results_published === "true" ? "🎉 PUBLISHED LIVE" : "⏳ Countdown Running"}
+            </span>
           </div>
         </div>
       </div>
@@ -509,7 +1309,7 @@ function ImagesTab({ data, act }: { data: AdminData; act: ActFn }) {
         <div>
           <h1 className="text-2xl font-black text-white">🖼️ Website Images Management</h1>
           <p className="mt-1 text-sm text-slate-400">
-            Upload new photos from your phone or computer. The website updates immediately without broken links.
+            Upload new photos from your phone or computer. The website updates immediately.
           </p>
         </div>
         <button
@@ -672,9 +1472,6 @@ function EmailTab({ data, act }: { data: AdminData; act: ActFn }) {
               onChange={(e) => setSmtpPass(e.target.value)}
               className={`${inputCls} mt-1 font-mono`}
             />
-            <span className="text-[11px] text-slate-500 mt-1 block">
-              Google App Password (not your personal Gmail login password).
-            </span>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -708,10 +1505,6 @@ function EmailTab({ data, act }: { data: AdminData; act: ActFn }) {
       {/* Test Email Section */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4">
         <h3 className="font-extrabold text-white">🧪 Send Test Email</h3>
-        <p className="text-xs text-slate-400">
-          Verify that your emails are arriving safely at alhamdfoundation2012@gmail.com.
-        </p>
-
         <div className="flex gap-3">
           <input
             type="email"
@@ -735,33 +1528,6 @@ function EmailTab({ data, act }: { data: AdminData; act: ActFn }) {
           </div>
         )}
       </div>
-
-      {/* Help Instructions Card */}
-      <div className="rounded-2xl border border-emerald-900/50 bg-emerald-950/30 p-6">
-        <h3 className="font-extrabold text-amber-300">
-          📖 Gmail App Password Setup (1 Minute Guide)
-        </h3>
-        <ol className="mt-3 list-decimal list-inside space-y-2 text-xs text-emerald-100 leading-relaxed">
-          <li>
-            Open your Gmail account: <strong>alhamdfoundation2012@gmail.com</strong>.
-          </li>
-          <li>
-            Go to <strong>Manage Your Google Account → Security</strong>.
-          </li>
-          <li>
-            Ensure <strong>2-Step Verification</strong> is turned ON.
-          </li>
-          <li>
-            Search for <strong>&quot;App passwords&quot;</strong> in the search bar.
-          </li>
-          <li>
-            Create a new app named <strong>&quot;Alhamd Website&quot;</strong> and click Create.
-          </li>
-          <li>
-            Copy the <strong>16-letter code</strong> and paste it into the <em>Gmail App Password</em> field above.
-          </li>
-        </ol>
-      </div>
     </div>
   );
 }
@@ -771,20 +1537,6 @@ function EmailTemplatesTab({ data, act }: { data: AdminData; act: ActFn }) {
   const [s, setS] = useState<Record<string, string>>({ ...data.settings });
   const [saving, setSaving] = useState(false);
   const [open, setOpen] = useState<string | null>("new_admin");
-
-  const shortcodes = [
-    "{{name}}",
-    "{{id}}",
-    "{{fatherName}}",
-    "{{cnic}}",
-    "{{phone}}",
-    "{{email}}",
-    "{{university}}",
-    "{{semester}}",
-    "{{fee}}",
-    "{{city}}",
-    "{{reason}}",
-  ];
 
   const val = (k: string) => s[k] ?? "";
   const set = (k: string, v: string) => setS((p) => ({ ...p, [k]: v }));
@@ -823,93 +1575,21 @@ function EmailTemplatesTab({ data, act }: { data: AdminData; act: ActFn }) {
         </button>
       </div>
 
-      {/* Shortcode helper */}
-      <div className="rounded-2xl border border-emerald-900/50 bg-emerald-950/30 p-5">
-        <h3 className="font-extrabold text-amber-300 text-sm">
-          Available Shortcodes
-        </h3>
-        <p className="mt-1 text-xs text-emerald-100/80">
-          Paste any of these inside a subject or message — they are automatically replaced with the student&apos;s real details.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {shortcodes.map((c) => (
-            <span
-              key={c}
-              className="rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1 font-mono text-[11px] text-emerald-300"
-            >
-              {c}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Branding */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-4">
-        <div>
-          <h2 className="font-extrabold text-white text-base">
-            Email Branding (header &amp; footer of every email)
-          </h2>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="text-xs font-bold uppercase text-slate-400">
-              Header Title
-            </label>
-            <input
-              value={val("email_brand_title")}
-              onChange={(e) => set("email_brand_title", e.target.value)}
-              className={`${inputCls} mt-1`}
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold uppercase text-slate-400">
-              Header Tagline
-            </label>
-            <input
-              value={val("email_brand_tagline")}
-              onChange={(e) => set("email_brand_tagline", e.target.value)}
-              className={`${inputCls} mt-1`}
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="text-xs font-bold uppercase text-slate-400">
-              Footer Line
-            </label>
-            <input
-              value={val("email_footer")}
-              onChange={(e) => set("email_footer", e.target.value)}
-              className={`${inputCls} mt-1`}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Each template */}
       {TEMPLATE_LIST.map((t) => {
         const enabled = (val(`tpl_${t.key}_enabled`) || "true") === "true";
         const isOpen = open === t.key;
         return (
-          <div
-            key={t.key}
-            className="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden"
-          >
+          <div key={t.key} className="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
             <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
-              <button
-                onClick={() => setOpen(isOpen ? null : t.key)}
-                className="flex-1 text-left"
-              >
+              <button onClick={() => setOpen(isOpen ? null : t.key)} className="flex-1 text-left">
                 <div className="font-extrabold text-white">{t.label}</div>
                 <div className="text-xs text-slate-400 mt-0.5">{t.desc}</div>
               </button>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() =>
-                    set(`tpl_${t.key}_enabled`, enabled ? "false" : "true")
-                  }
+                  onClick={() => set(`tpl_${t.key}_enabled`, enabled ? "false" : "true")}
                   className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
-                    enabled
-                      ? "bg-emerald-500 text-emerald-950"
-                      : "bg-slate-800 text-slate-400 border border-slate-700"
+                    enabled ? "bg-emerald-500 text-emerald-950" : "bg-slate-800 text-slate-400 border border-slate-700"
                   }`}
                 >
                   {enabled ? "ON" : "OFF"}
@@ -926,9 +1606,7 @@ function EmailTemplatesTab({ data, act }: { data: AdminData; act: ActFn }) {
             {isOpen && (
               <div className="border-t border-slate-800 bg-slate-950/40 px-5 py-5 space-y-4">
                 <div>
-                  <label className="text-xs font-bold uppercase text-slate-400">
-                    Subject Line
-                  </label>
+                  <label className="text-xs font-bold uppercase text-slate-400">Subject Line</label>
                   <input
                     value={val(`tpl_${t.key}_subject`)}
                     onChange={(e) => set(`tpl_${t.key}_subject`, e.target.value)}
@@ -936,18 +1614,13 @@ function EmailTemplatesTab({ data, act }: { data: AdminData; act: ActFn }) {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase text-slate-400">
-                    Message Body
-                  </label>
+                  <label className="text-xs font-bold uppercase text-slate-400">Message Body</label>
                   <textarea
-                    rows={12}
+                    rows={10}
                     value={val(`tpl_${t.key}_body`)}
                     onChange={(e) => set(`tpl_${t.key}_body`, e.target.value)}
                     className={`${inputCls} mt-1 leading-relaxed`}
                   />
-                  <p className="mt-1 text-[11px] text-slate-500">
-                    Leave a blank line between paragraphs. The professional header, styling and footer are added automatically.
-                  </p>
                 </div>
               </div>
             )}
@@ -965,7 +1638,8 @@ function EmailTemplatesTab({ data, act }: { data: AdminData; act: ActFn }) {
     </div>
   );
 }
-/* ---------- Reviews Tab (With Edit & Delete) ---------- */
+
+/* ---------- Reviews Tab ---------- */
 function Reviews({ data, act }: { data: AdminData; act: ActFn }) {
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [editName, setEditName] = useState("");
@@ -978,7 +1652,6 @@ function Reviews({ data, act }: { data: AdminData; act: ActFn }) {
     setEditingReview(r);
     setEditName(r.name);
     setEditMessage(r.message);
-    // Format date for datetime-local
     const d = new Date(r.createdAt);
     setEditDate(d.toISOString().slice(0, 16));
   }
@@ -996,7 +1669,7 @@ function Reviews({ data, act }: { data: AdminData; act: ActFn }) {
     setEditingReview(null);
   }
 
-  const filtered = data.reviews.filter(
+  const filtered = (data.reviews || []).filter(
     (r) =>
       r.name.toLowerCase().includes(search.toLowerCase()) ||
       r.message.toLowerCase().includes(search.toLowerCase())
@@ -1007,7 +1680,7 @@ function Reviews({ data, act }: { data: AdminData; act: ActFn }) {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-white">
-            Community Reviews ({data.reviews.length})
+            Community Reviews ({filtered.length})
           </h1>
           <p className="mt-1 text-sm text-slate-400">
             Edit or remove any review. Dates range from 2012 to 2026.
@@ -1016,7 +1689,7 @@ function Reviews({ data, act }: { data: AdminData; act: ActFn }) {
 
         <input
           type="text"
-          placeholder="Search reviews by name or text..."
+          placeholder="Search reviews..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className={`${inputCls} max-w-xs`}
@@ -1031,59 +1704,29 @@ function Reviews({ data, act }: { data: AdminData; act: ActFn }) {
               <h3 className="font-extrabold text-white text-lg">
                 Edit Review #{editingReview.id}
               </h3>
-              <button
-                onClick={() => setEditingReview(null)}
-                className="text-slate-400 hover:text-white"
-              >
-                ✕
-              </button>
+              <button onClick={() => setEditingReview(null)} className="text-slate-400 hover:text-white">✕</button>
             </div>
 
             <div>
               <label className="text-xs font-bold uppercase text-slate-400">Reviewer Name</label>
-              <input
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                className={`${inputCls} mt-1`}
-              />
+              <input value={editName} onChange={(e) => setEditName(e.target.value)} className={`${inputCls} mt-1`} />
             </div>
 
             <div>
               <label className="text-xs font-bold uppercase text-slate-400">Review Message</label>
-              <textarea
-                rows={4}
-                value={editMessage}
-                onChange={(e) => setEditMessage(e.target.value)}
-                className={`${inputCls} mt-1`}
-              />
+              <textarea rows={4} value={editMessage} onChange={(e) => setEditMessage(e.target.value)} className={`${inputCls} mt-1`} />
             </div>
 
             <div>
-              <label className="text-xs font-bold uppercase text-slate-400">
-                Posted Date & Time (Pakistan Time)
-              </label>
-              <input
-                type="datetime-local"
-                value={editDate}
-                onChange={(e) => setEditDate(e.target.value)}
-                className={`${inputCls} mt-1`}
-              />
+              <label className="text-xs font-bold uppercase text-slate-400">Posted Date & Time</label>
+              <input type="datetime-local" value={editDate} onChange={(e) => setEditDate(e.target.value)} className={`${inputCls} mt-1`} />
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setEditingReview(null)}
-                className="rounded-lg bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700"
-              >
+              <button onClick={() => setEditingReview(null)} className="rounded-lg bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300">
                 Cancel
               </button>
-              <button
-                type="button"
-                disabled={saving}
-                onClick={saveEdit}
-                className="rounded-lg bg-emerald-600 px-5 py-2 text-xs font-extrabold text-white hover:bg-emerald-500 disabled:opacity-50"
-              >
+              <button disabled={saving} onClick={saveEdit} className="rounded-lg bg-emerald-600 px-5 py-2 text-xs font-extrabold text-white">
                 {saving ? "Saving…" : "Save Changes"}
               </button>
             </div>
@@ -1094,32 +1737,22 @@ function Reviews({ data, act }: { data: AdminData; act: ActFn }) {
       {/* Reviews List */}
       <div className="space-y-3">
         {filtered.slice(0, 30).map((r) => (
-          <div
-            key={r.id}
-            className="rounded-2xl border border-slate-800 bg-slate-900 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
-          >
+          <div key={r.id} className="rounded-2xl border border-slate-800 bg-slate-900 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-3">
                 <span className="font-extrabold text-white">{r.name}</span>
-                <span className="text-xs text-slate-400">
-                  🕐 {formatPKT(r.createdAt)} PKT
-                </span>
+                <span className="text-xs text-slate-400">🕐 {formatPKT(r.createdAt)}</span>
               </div>
               <p className="mt-2 text-sm text-slate-300">{r.message}</p>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => openEdit(r)}
-                className={`${btnSm} bg-sky-600/20 text-sky-300 border border-sky-500/30 hover:bg-sky-600 hover:text-white`}
-              >
+              <button onClick={() => openEdit(r)} className={`${btnSm} bg-sky-600/20 text-sky-300 border border-sky-500/30 hover:bg-sky-600 hover:text-white`}>
                 ✏️ Edit
               </button>
               <button
                 onClick={() => {
-                  if (confirm(`Delete review from "${r.name}"?`)) {
-                    act("deleteReview", { id: r.id });
-                  }
+                  if (confirm(`Delete review from "${r.name}"?`)) act("deleteReview", { id: r.id });
                 }}
                 className={`${btnSm} bg-red-600/20 text-red-300 border border-red-500/30 hover:bg-red-600 hover:text-white`}
               >
@@ -1129,12 +1762,6 @@ function Reviews({ data, act }: { data: AdminData; act: ActFn }) {
           </div>
         ))}
       </div>
-
-      {filtered.length > 30 && (
-        <p className="text-center text-xs text-slate-500 pt-2">
-          Showing 30 of {filtered.length} reviews. Use search box above to find any specific review.
-        </p>
-      )}
     </div>
   );
 }
@@ -1145,8 +1772,8 @@ function Applications({ data, act }: { data: AdminData; act: ActFn }) {
   const [filter, setFilter] = useState("all");
   const apps =
     filter === "all"
-      ? data.applications
-      : data.applications.filter((a) => a.status === filter);
+      ? data.applications || []
+      : (data.applications || []).filter((a) => a.status === filter);
 
   const badge = (s: string) =>
     ({
@@ -1171,9 +1798,7 @@ function Applications({ data, act }: { data: AdminData; act: ActFn }) {
             key={f}
             onClick={() => setFilter(f)}
             className={`${btnSm} capitalize ${
-              filter === f
-                ? "bg-emerald-600 text-white shadow-sm"
-                : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+              filter === f ? "bg-emerald-600 text-white shadow-sm" : "bg-slate-800 text-slate-300 hover:bg-slate-700"
             }`}
           >
             {f}
@@ -1188,10 +1813,7 @@ function Applications({ data, act }: { data: AdminData; act: ActFn }) {
           </p>
         )}
         {apps.map((a) => (
-          <div
-            key={a.id}
-            className="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden"
-          >
+          <div key={a.id} className="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
             <button
               onClick={() => setOpenId(openId === a.id ? null : a.id)}
               className="flex w-full flex-wrap items-center justify-between gap-3 px-5 py-4 text-left hover:bg-slate-800/50 transition"
@@ -1253,11 +1875,7 @@ function Applications({ data, act }: { data: AdminData; act: ActFn }) {
                         <div className="mb-1 text-[11px] font-bold text-slate-400 group-hover:text-emerald-300">
                           {label}
                         </div>
-                        <img
-                          src={src}
-                          alt={label}
-                          className="h-28 w-full rounded-lg object-cover group-hover:opacity-90"
-                        />
+                        <img src={src} alt={label} className="h-28 w-full rounded-lg object-cover group-hover:opacity-90" />
                       </a>
                     ))}
                   </div>
@@ -1288,17 +1906,9 @@ function Applications({ data, act }: { data: AdminData; act: ActFn }) {
                   >
                     ↩ Back to Pending
                   </button>
-                  <a
-                    href={`mailto:${a.email}?subject=Alhamd Foundation Scholarship — Update on Application %23${a.id}`}
-                    className={`${btnSm} bg-amber-400 text-emerald-950 hover:bg-amber-300`}
-                  >
-                    ✉️ Email Student
-                  </a>
                   <button
                     onClick={() => {
-                      if (confirm("Delete this application permanently?")) {
-                        act("deleteApplication", { id: a.id });
-                      }
+                      if (confirm("Delete this application permanently?")) act("deleteApplication", { id: a.id });
                     }}
                     className={`${btnSm} bg-slate-800 text-red-400 border border-red-900/60 hover:bg-red-950`}
                   >
@@ -1316,8 +1926,8 @@ function Applications({ data, act }: { data: AdminData; act: ActFn }) {
 
 /* ---------- Lucky Draw ---------- */
 function Draw({ data, act }: { data: AdminData; act: ActFn }) {
-  const approved = data.applications.filter((a) => a.status === "approved");
-  const selected = data.applications.filter((a) => a.status === "selected");
+  const approved = (data.applications || []).filter((a) => a.status === "approved");
+  const selected = (data.applications || []).filter((a) => a.status === "selected");
   const [count, setCount] = useState(1);
   const [drawing, setDrawing] = useState(false);
   const [winners, setWinners] = useState<
@@ -1351,17 +1961,11 @@ function Draw({ data, act }: { data: AdminData; act: ActFn }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
           <div className="text-3xl font-black text-emerald-400">{approved.length}</div>
-          <div className="text-sm font-semibold text-slate-300 mt-1">
-            Approved Students in Draw Pool
-          </div>
+          <div className="text-sm font-semibold text-slate-300 mt-1">Approved Students in Draw Pool</div>
         </div>
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <div className="text-3xl font-black text-amber-300">
-            {data.settings.stat_scholarships}
-          </div>
-          <div className="text-sm font-semibold text-slate-300 mt-1">
-            Total Public Scholarship Counter
-          </div>
+          <div className="text-3xl font-black text-amber-300">{data.settings.stat_scholarships || 143}</div>
+          <div className="text-sm font-semibold text-slate-300 mt-1">Total Public Scholarship Counter</div>
         </div>
       </div>
 
@@ -1385,100 +1989,55 @@ function Draw({ data, act }: { data: AdminData; act: ActFn }) {
           </button>
         </div>
 
-        {approved.length === 0 && (
-          <p className="text-sm text-amber-400">
-            No approved applications available yet. Review & approve applications first.
-          </p>
-        )}
-
         {winners && (
           <div className="mt-4 rounded-xl border border-emerald-700/60 bg-emerald-950/60 p-5">
-            <h3 className="text-base font-extrabold text-amber-300">
-              🎉 Selected Beneficiaries (Mubarak Ho!):
-            </h3>
+            <h3 className="text-base font-extrabold text-amber-300">🎉 Selected Beneficiaries:</h3>
             <ul className="mt-3 space-y-2">
               {winners.map((w) => (
                 <li key={w.id} className="rounded-lg bg-slate-900/80 px-4 py-2.5 text-sm border border-slate-800">
                   <b className="text-white">{w.fullName}</b>
-                  <span className="text-slate-400">
-                    {" "}
-                    s/o {w.fatherName} — {w.university}, {w.city}
-                  </span>
+                  <span className="text-slate-400"> s/o {w.fatherName} — {w.university}, {w.city}</span>
                 </li>
               ))}
             </ul>
           </div>
         )}
       </div>
-
-      {selected.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="font-extrabold text-white text-lg">
-            All Selected Scholars ({selected.length})
-          </h2>
-          <div className="space-y-2">
-            {selected.map((a) => (
-              <div
-                key={a.id}
-                className="flex flex-wrap items-center justify-between rounded-xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm"
-              >
-                <span>
-                  <b className="text-white">{a.fullName}</b>{" "}
-                  <span className="text-slate-400">
-                    — {a.university}, {a.city} • {formatPKR(a.perSemesterFee)}/sem
-                  </span>
-                </span>
-                <span className="text-xs text-slate-400 font-mono">{a.phone}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
 /* ---------- Donations ---------- */
 function Donations({ data, act }: { data: AdminData; act: ActFn }) {
-  const label = (p: string) =>
-    ({ general: "General Fund", rashan: "Rashan Package", scholarship: "Student Scholarship" }[p] || p);
-
+  const dons = data.donations || [];
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-black text-white">Donation Proofs ({data.donations.length})</h1>
-        <p className="mt-1 text-sm text-slate-400">
-          Screenshots submitted by donors through the Donate page.
-        </p>
+        <h1 className="text-2xl font-black text-white">Donation Proofs ({dons.length})</h1>
       </div>
-
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {data.donations.length === 0 && (
+        {dons.length === 0 && (
           <p className="col-span-3 rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center text-slate-400">
             No donation proofs submitted yet.
           </p>
         )}
-        {data.donations.map((d) => (
+        {dons.map((d) => (
           <div key={d.id} className="rounded-2xl border border-slate-800 bg-slate-900 p-4 space-y-3">
             <div className="flex items-center justify-between">
               <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300 border border-emerald-500/30">
-                {label(d.purpose)}
+                {d.purpose}
               </span>
               <span className="text-xs text-slate-500">{formatPKT(d.createdAt)}</span>
             </div>
             <a href={d.screenshot} target="_blank" rel="noreferrer" className="block">
-              <img
-                src={d.screenshot}
-                alt="Donation screenshot"
-                className="h-44 w-full rounded-xl object-cover border border-slate-700 hover:opacity-90 transition"
-              />
+              <img src={d.screenshot} alt="Donation" className="h-44 w-full rounded-xl object-cover border border-slate-700 hover:opacity-90 transition" />
             </a>
             {d.message && <p className="text-xs italic text-slate-300">“{d.message}”</p>}
             <button
               onClick={() => {
-                if (confirm("Delete this donation record?")) act("deleteDonation", { id: d.id });
+                if (confirm("Delete donation proof?")) act("deleteDonation", { id: d.id });
               }}
-              className={`${btnSm} bg-slate-800 text-red-400 border border-red-900/60 hover:bg-red-950`}
+              className={`${btnSm} bg-slate-800 text-red-400 border border-red-900/60`}
             >
               🗑 Delete Record
             </button>
@@ -1493,10 +2052,8 @@ function Donations({ data, act }: { data: AdminData; act: ActFn }) {
 function Rashan({ data, act }: { data: AdminData; act: ActFn }) {
   const [drafts, setDrafts] = useState<Record<number, RashanItem>>({});
   const [newItem, setNewItem] = useState({ name: "", quantity: "", price: "" });
-  const total = useMemo(
-    () => data.rashanItems.reduce((s, i) => s + i.price, 0),
-    [data.rashanItems]
-  );
+  const items = data.rashanItems || [];
+  const total = useMemo(() => items.reduce((s, i) => s + i.price, 0), [items]);
   const families = parseInt(data.settings.stat_families) || 104;
 
   const draft = (item: RashanItem) => drafts[item.id] ?? item;
@@ -1521,27 +2078,22 @@ function Rashan({ data, act }: { data: AdminData; act: ActFn }) {
             </tr>
           </thead>
           <tbody>
-            {data.rashanItems.map((item) => {
+            {items.map((item) => {
               const d = draft(item);
-              const dirty =
-                d.name !== item.name || d.quantity !== item.quantity || d.price !== item.price;
+              const dirty = d.name !== item.name || d.quantity !== item.quantity || d.price !== item.price;
               return (
                 <tr key={item.id} className="border-b border-slate-800/60">
                   <td className="px-4 py-2.5">
                     <input
                       value={d.name}
-                      onChange={(e) =>
-                        setDrafts({ ...drafts, [item.id]: { ...d, name: e.target.value } })
-                      }
+                      onChange={(e) => setDrafts({ ...drafts, [item.id]: { ...d, name: e.target.value } })}
                       className={inputCls}
                     />
                   </td>
                   <td className="px-4 py-2.5">
                     <input
                       value={d.quantity}
-                      onChange={(e) =>
-                        setDrafts({ ...drafts, [item.id]: { ...d, quantity: e.target.value } })
-                      }
+                      onChange={(e) => setDrafts({ ...drafts, [item.id]: { ...d, quantity: e.target.value } })}
                       className={inputCls}
                     />
                   </td>
@@ -1549,12 +2101,7 @@ function Rashan({ data, act }: { data: AdminData; act: ActFn }) {
                     <input
                       type="number"
                       value={d.price}
-                      onChange={(e) =>
-                        setDrafts({
-                          ...drafts,
-                          [item.id]: { ...d, price: Number(e.target.value) },
-                        })
-                      }
+                      onChange={(e) => setDrafts({ ...drafts, [item.id]: { ...d, price: Number(e.target.value) } })}
                       className={`${inputCls} max-w-[130px] font-mono`}
                     />
                   </td>
@@ -1563,12 +2110,7 @@ function Rashan({ data, act }: { data: AdminData; act: ActFn }) {
                       <button
                         disabled={!dirty}
                         onClick={async () => {
-                          await act("updateRashanItem", {
-                            id: item.id,
-                            name: d.name,
-                            quantity: d.quantity,
-                            price: d.price,
-                          });
+                          await act("updateRashanItem", { id: item.id, name: d.name, quantity: d.quantity, price: d.price });
                           setDrafts((prev) => {
                             const cp = { ...prev };
                             delete cp[item.id];
@@ -1581,8 +2123,7 @@ function Rashan({ data, act }: { data: AdminData; act: ActFn }) {
                       </button>
                       <button
                         onClick={() => {
-                          if (confirm(`Remove "${item.name}"?`))
-                            act("deleteRashanItem", { id: item.id });
+                          if (confirm(`Remove "${item.name}"?`)) act("deleteRashanItem", { id: item.id });
                         }}
                         className={`${btnSm} bg-slate-800 text-red-400 border border-red-900/60`}
                       >
@@ -1595,39 +2136,19 @@ function Rashan({ data, act }: { data: AdminData; act: ActFn }) {
             })}
             <tr>
               <td className="px-4 py-3">
-                <input
-                  placeholder="New item e.g. Ghee"
-                  value={newItem.name}
-                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                  className={inputCls}
-                />
+                <input placeholder="New item" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} className={inputCls} />
               </td>
               <td className="px-4 py-3">
-                <input
-                  placeholder="e.g. 2 KG"
-                  value={newItem.quantity}
-                  onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })}
-                  className={inputCls}
-                />
+                <input placeholder="Quantity" value={newItem.quantity} onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })} className={inputCls} />
               </td>
               <td className="px-4 py-3">
-                <input
-                  type="number"
-                  placeholder="Price"
-                  value={newItem.price}
-                  onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
-                  className={`${inputCls} max-w-[130px] font-mono`}
-                />
+                <input type="number" placeholder="Price" value={newItem.price} onChange={(e) => setNewItem({ ...newItem, price: e.target.value })} className={`${inputCls} max-w-[130px]`} />
               </td>
               <td className="px-4 py-3">
                 <button
                   disabled={!newItem.name || !newItem.quantity || !newItem.price}
                   onClick={async () => {
-                    await act("addRashanItem", {
-                      name: newItem.name,
-                      quantity: newItem.quantity,
-                      price: Number(newItem.price),
-                    });
+                    await act("addRashanItem", { name: newItem.name, quantity: newItem.quantity, price: Number(newItem.price) });
                     setNewItem({ name: "", quantity: "", price: "" });
                   }}
                   className={`${btnSm} bg-amber-400 text-emerald-950 font-extrabold disabled:opacity-30`}
@@ -1646,12 +2167,8 @@ function Rashan({ data, act }: { data: AdminData; act: ActFn }) {
           <div className="text-3xl font-black text-amber-300 mt-1">{formatPKR(total)}</div>
         </div>
         <div className="rounded-2xl border border-emerald-800/60 bg-emerald-950/40 p-5">
-          <div className="text-xs uppercase font-bold text-emerald-400">
-            Total for all {families} Families
-          </div>
-          <div className="text-3xl font-black text-amber-300 mt-1">
-            {formatPKR(total * families)}
-          </div>
+          <div className="text-xs uppercase font-bold text-emerald-400">Total for all {families} Families</div>
+          <div className="text-3xl font-black text-amber-300 mt-1">{formatPKR(total * families)}</div>
         </div>
       </div>
     </div>
@@ -1663,17 +2180,11 @@ function Families({ data, act }: { data: AdminData; act: ActFn }) {
   const empty = { familyHead: "", city: "", members: "1", phone: "", notes: "" };
   const [form, setForm] = useState(empty);
   const [editId, setEditId] = useState<number | null>(null);
-  const total = data.rashanItems.reduce((s, i) => s + i.price, 0);
+  const families = data.families || [];
 
   function startEdit(f: Family) {
     setEditId(f.id);
-    setForm({
-      familyHead: f.familyHead,
-      city: f.city,
-      members: String(f.members),
-      phone: f.phone || "",
-      notes: f.notes || "",
-    });
+    setForm({ familyHead: f.familyHead, city: f.city, members: String(f.members), phone: f.phone || "", notes: f.notes || "" });
   }
 
   async function save() {
@@ -1693,73 +2204,21 @@ function Families({ data, act }: { data: AdminData; act: ActFn }) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-black text-white">
-          Rashan Beneficiary Families ({data.families.length})
-        </h1>
-        <p className="mt-1 text-sm text-slate-400">
-          Monthly allocation cost per family is currently{" "}
-          <strong className="text-amber-300">{formatPKR(total)}</strong>.
-        </p>
+        <h1 className="text-2xl font-black text-white">Rashan Beneficiary Families ({families.length})</h1>
       </div>
 
       <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-4">
-        <h3 className="font-extrabold text-white text-base">
-          {editId ? `Edit Family #${editId}` : "+ Add Beneficiary Family"}
-        </h3>
+        <h3 className="font-extrabold text-white text-base">{editId ? `Edit Family #${editId}` : "+ Add Beneficiary Family"}</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <input
-            placeholder="Family head name *"
-            value={form.familyHead}
-            onChange={(e) => setForm({ ...form, familyHead: e.target.value })}
-            className={inputCls}
-          />
-          <input
-            placeholder="City *"
-            value={form.city}
-            onChange={(e) => setForm({ ...form, city: e.target.value })}
-            className={inputCls}
-          />
-          <input
-            type="number"
-            min="1"
-            placeholder="Family members"
-            value={form.members}
-            onChange={(e) => setForm({ ...form, members: e.target.value })}
-            className={inputCls}
-          />
-          <input
-            placeholder="Phone (optional)"
-            value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            className={inputCls}
-          />
-          <input
-            placeholder="Address/Notes"
-            value={form.notes}
-            onChange={(e) => setForm({ ...form, notes: e.target.value })}
-            className={inputCls}
-          />
+          <input placeholder="Family head name *" value={form.familyHead} onChange={(e) => setForm({ ...form, familyHead: e.target.value })} className={inputCls} />
+          <input placeholder="City *" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} />
+          <input type="number" min="1" placeholder="Members" value={form.members} onChange={(e) => setForm({ ...form, members: e.target.value })} className={inputCls} />
+          <input placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputCls} />
+          <input placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className={inputCls} />
         </div>
-        <div className="flex gap-2">
-          <button
-            disabled={!form.familyHead || !form.city}
-            onClick={save}
-            className="rounded-xl bg-emerald-600 px-5 py-2 text-sm font-extrabold text-white hover:bg-emerald-500 disabled:opacity-30"
-          >
-            {editId ? "Save Changes" : "+ Add Family"}
-          </button>
-          {editId && (
-            <button
-              onClick={() => {
-                setEditId(null);
-                setForm(empty);
-              }}
-              className="rounded-xl bg-slate-800 px-4 py-2 text-sm text-slate-300"
-            >
-              Cancel
-            </button>
-          )}
-        </div>
+        <button disabled={!form.familyHead || !form.city} onClick={save} className="rounded-xl bg-emerald-600 px-5 py-2 text-sm font-extrabold text-white">
+          {editId ? "Save Changes" : "+ Add Family"}
+        </button>
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900">
@@ -1770,47 +2229,20 @@ function Families({ data, act }: { data: AdminData; act: ActFn }) {
               <th className="px-4 py-3">Family Head</th>
               <th className="px-4 py-3">City</th>
               <th className="px-4 py-3">Members</th>
-              <th className="px-4 py-3">Phone</th>
-              <th className="px-4 py-3">Monthly Allocation</th>
               <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {data.families.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-slate-500">
-                  No families added yet.
-                </td>
-              </tr>
-            )}
-            {data.families.map((f, i) => (
+            {families.map((f, i) => (
               <tr key={f.id} className="border-b border-slate-800/60">
                 <td className="px-4 py-3 text-slate-500">{i + 1}</td>
-                <td className="px-4 py-3 font-bold text-white">
-                  {f.familyHead}
-                  {f.notes && <div className="text-xs font-normal text-slate-400">{f.notes}</div>}
-                </td>
+                <td className="px-4 py-3 font-bold text-white">{f.familyHead}</td>
                 <td className="px-4 py-3 text-slate-300">{f.city}</td>
                 <td className="px-4 py-3 text-slate-300">{f.members}</td>
-                <td className="px-4 py-3 text-slate-300">{f.phone || "—"}</td>
-                <td className="px-4 py-3 font-bold text-amber-300">{formatPKR(total)}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => startEdit(f)}
-                      className={`${btnSm} bg-sky-600 text-white`}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (confirm(`Remove family "${f.familyHead}"?`))
-                          act("deleteFamily", { id: f.id });
-                      }}
-                      className={`${btnSm} bg-slate-800 text-red-400 border border-red-900/60`}
-                    >
-                      Delete
-                    </button>
+                    <button onClick={() => startEdit(f)} className={`${btnSm} bg-sky-600 text-white`}>Edit</button>
+                    <button onClick={() => { if (confirm("Delete family?")) act("deleteFamily", { id: f.id }); }} className={`${btnSm} bg-slate-800 text-red-400`}>Delete</button>
                   </div>
                 </td>
               </tr>
@@ -1824,50 +2256,24 @@ function Families({ data, act }: { data: AdminData; act: ActFn }) {
 
 /* ---------- Volunteers ---------- */
 function Volunteers({ data, act }: { data: AdminData; act: ActFn }) {
+  const vols = data.volunteers || [];
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-black text-white">
-          Volunteer Registrations ({data.volunteers.length})
-        </h1>
-        <p className="mt-1 text-sm text-slate-400">
-          Youth registered from different cities to serve in the path of Allah.
-        </p>
+        <h1 className="text-2xl font-black text-white">Volunteer Registrations ({vols.length})</h1>
       </div>
-
       <div className="space-y-3">
-        {data.volunteers.length === 0 && (
-          <p className="rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center text-slate-400">
-            No volunteer applications received yet.
-          </p>
-        )}
-        {data.volunteers.map((v) => (
-          <div
-            key={v.id}
-            className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-3"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-extrabold text-white text-base">
-                {v.fullName}{" "}
-                <span className="text-sm font-normal text-slate-400">
-                  s/o {v.fatherName} — {v.city}
-                </span>
-              </span>
+        {vols.map((v) => (
+          <div key={v.id} className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-2">
+            <div className="flex justify-between">
+              <span className="font-extrabold text-white">{v.fullName} <span className="text-xs text-slate-400">s/o {v.fatherName} — {v.city}</span></span>
               <span className="text-xs text-slate-500">{formatPKT(v.createdAt)}</span>
             </div>
-            <p className="text-sm text-slate-300 leading-relaxed">“{v.motivation}”</p>
-            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400 pt-1">
+            <p className="text-sm text-slate-300">“{v.motivation}”</p>
+            <div className="flex gap-4 text-xs text-slate-400 pt-1">
               <span>📞 {v.phone}</span>
               {v.email && <span>✉️ {v.email}</span>}
-              <button
-                onClick={() => {
-                  if (confirm("Delete this volunteer record?"))
-                    act("deleteVolunteer", { id: v.id });
-                }}
-                className={`${btnSm} bg-slate-800 text-red-400 border border-red-900/60 hover:bg-red-950`}
-              >
-                🗑 Delete
-              </button>
+              <button onClick={() => { if (confirm("Delete volunteer?")) act("deleteVolunteer", { id: v.id }); }} className={`${btnSm} bg-slate-800 text-red-400 ml-auto`}>Delete</button>
             </div>
           </div>
         ))}
@@ -1884,57 +2290,6 @@ function Settings({ data, act }: { data: AdminData; act: ActFn }) {
   });
   const [saving, setSaving] = useState(false);
 
-  const groups: [string, string, [string, string, boolean?][]][] = [
-    [
-      "📈 Public Statistics",
-      "These numbers appear on the homepage counters. (Scholarship counter auto-increases after each draw).",
-      [
-        ["stat_families", "Families receiving rashan"],
-        ["stat_scholarships", "Total scholarships awarded"],
-        ["stat_years", "Years of service"],
-        ["founded_year", "Founded year"],
-      ],
-    ],
-    [
-      "📅 Scholarship Program Settings",
-      "",
-      [
-        ["next_announcement", "Next announcement text", true],
-        ["application_fee", "Application fee (PKR)"],
-        ["scholarship_note", "How-it-works description", true],
-      ],
-    ],
-    [
-      "💳 Single Official Payment Method",
-      "Shown on the Donate page and inside the Scholarship 'See Payment Details' popup.",
-      [
-        ["payment_method_type", "Payment Method (e.g. JazzCash, EasyPaisa, Bank Transfer)"],
-        ["payment_account_title", "Account Title"],
-        ["payment_account_number", "Account Number / IBAN"],
-        ["payment_bank_name", "Bank Name (if method is Bank Transfer)"],
-        ["payment_note", "Payment Note / Instructions", true],
-      ],
-    ],
-    [
-      "📝 Page Content & Translations",
-      "Edit the text of headers and verses.",
-      [
-        ["home_hero_title", "Home hero title"],
-        ["home_hero_text", "Home hero text", true],
-        ["donate_ayat", "Donation page Ayat (Arabic)", true],
-        ["donate_ayat_urdu", "Ayat Urdu translation", true],
-        ["donate_ayat_translation", "Ayat English translation", true],
-        ["rashan_intro", "Rashan page intro", true],
-        ["volunteer_intro", "Volunteer page intro", true],
-      ],
-    ],
-    [
-      "🔐 Admin Security",
-      "Leave blank to keep the current password.",
-      [["admin_password", "New admin password"]],
-    ],
-  ];
-
   async function save() {
     setSaving(true);
     const payload = { ...s };
@@ -1948,63 +2303,42 @@ function Settings({ data, act }: { data: AdminData; act: ActFn }) {
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-white">⚙️ Site Settings</h1>
-          <p className="mt-1 text-sm text-slate-400">
-            Changes made here update the public website immediately.
-          </p>
+          <h1 className="text-2xl font-black text-white">⚙️ Site Settings & Security</h1>
         </div>
-        <button
-          onClick={save}
-          disabled={saving}
-          className="rounded-xl bg-emerald-600 px-6 py-2.5 font-bold text-white hover:bg-emerald-500 disabled:opacity-50 transition"
-        >
+        <button onClick={save} disabled={saving} className="rounded-xl bg-emerald-600 px-6 py-2.5 font-bold text-white hover:bg-emerald-500">
           {saving ? "Saving…" : "💾 Save Settings"}
         </button>
       </div>
 
-      {groups.map(([title, hint, fields]) => (
-        <div
-          key={title}
-          className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-4"
-        >
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-4">
+        <h2 className="font-extrabold text-white text-base">💳 Official Payment Method</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <h2 className="font-extrabold text-white text-base">{title}</h2>
-            {hint && <p className="mt-0.5 text-xs text-slate-500">{hint}</p>}
+            <label className="text-xs font-bold uppercase text-slate-400">Payment Method (JazzCash / EasyPaisa / Bank)</label>
+            <input value={s.payment_method_type || ""} onChange={(e) => setS({ ...s, payment_method_type: e.target.value })} className={`${inputCls} mt-1`} />
           </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            {fields.map(([key, label, multiline]) => (
-              <div key={key} className={multiline ? "sm:col-span-2" : ""}>
-                <label className="text-xs font-bold uppercase text-slate-400">{label}</label>
-                {multiline ? (
-                  <textarea
-                    rows={2}
-                    value={s[key] || ""}
-                    onChange={(e) => setS({ ...s, [key]: e.target.value })}
-                    className={`${inputCls} mt-1`}
-                  />
-                ) : (
-                  <input
-                    type={key === "admin_password" ? "password" : "text"}
-                    placeholder={key === "admin_password" ? "Leave blank to keep current" : ""}
-                    value={s[key] || ""}
-                    onChange={(e) => setS({ ...s, [key]: e.target.value })}
-                    className={`${inputCls} mt-1`}
-                  />
-                )}
-              </div>
-            ))}
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">Account Title</label>
+            <input value={s.payment_account_title || ""} onChange={(e) => setS({ ...s, payment_account_title: e.target.value })} className={`${inputCls} mt-1`} />
+          </div>
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">Account Number / IBAN</label>
+            <input value={s.payment_account_number || ""} onChange={(e) => setS({ ...s, payment_account_number: e.target.value })} className={`${inputCls} mt-1 font-mono`} />
+          </div>
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">Bank Name (if applicable)</label>
+            <input value={s.payment_bank_name || ""} onChange={(e) => setS({ ...s, payment_bank_name: e.target.value })} className={`${inputCls} mt-1`} />
           </div>
         </div>
-      ))}
+      </div>
 
-      <button
-        onClick={save}
-        disabled={saving}
-        className="w-full rounded-2xl bg-emerald-600 py-3.5 font-extrabold text-white hover:bg-emerald-500 disabled:opacity-60 transition shadow-xl"
-      >
-        {saving ? "Saving…" : "💾 Save All Settings"}
-      </button>
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-4">
+        <h2 className="font-extrabold text-white text-base">🔐 Change Admin Password</h2>
+        <div>
+          <label className="text-xs font-bold uppercase text-slate-400">New Admin Password (leave blank to keep current)</label>
+          <input type="password" placeholder="Min 6 characters" value={s.admin_password || ""} onChange={(e) => setS({ ...s, admin_password: e.target.value })} className={`${inputCls} mt-1`} />
+        </div>
+      </div>
     </div>
   );
 }
