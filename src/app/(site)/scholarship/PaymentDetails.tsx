@@ -20,7 +20,29 @@ export default function PaymentDetails({
   note,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const isBank = methodType === "Bank Transfer";
+
+  async function copyNumber() {
+    const value = accountNumber.trim();
+    if (!value) return;
+
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      const box = document.createElement("textarea");
+      box.value = value;
+      box.style.position = "fixed";
+      box.style.left = "-9999px";
+      document.body.appendChild(box);
+      box.select();
+      document.execCommand("copy");
+      document.body.removeChild(box);
+    }
+
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
     <>
@@ -41,10 +63,9 @@ export default function PaymentDetails({
           onClick={() => setOpen(false)}
         >
           <div
-            className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200 animate-in fade-in zoom-in-95"
+            className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button */}
             <button
               type="button"
               onClick={() => setOpen(false)}
@@ -72,7 +93,6 @@ export default function PaymentDetails({
               Pay the Rs. {fee} fee to the official account below and attach the payment screenshot in the form:
             </p>
 
-            {/* Single official payment method */}
             <div className="mt-4 rounded-xl border-2 border-emerald-600 bg-emerald-50/50 p-4">
               <div className="flex items-center justify-between border-b border-emerald-200/60 pb-2">
                 <span className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-emerald-900">
@@ -98,8 +118,17 @@ export default function PaymentDetails({
                   <div className="text-[11px] font-bold uppercase text-slate-500">
                     {isBank ? "Account Number / IBAN" : "Account Number"}
                   </div>
-                  <div className="font-mono text-xl font-extrabold text-emerald-900 select-all">
-                    {accountNumber}
+                  <div className="mt-1 flex items-center justify-between gap-3">
+                    <div className="font-mono text-xl font-extrabold text-emerald-900 break-all">
+                      {accountNumber}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={copyNumber}
+                      className="shrink-0 rounded-lg bg-emerald-700 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-600"
+                    >
+                      {copied ? "Copied" : "Copy"}
+                    </button>
                   </div>
                 </div>
               </div>
