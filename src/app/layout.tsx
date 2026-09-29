@@ -1,7 +1,22 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Outfit, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { ensureSeeded } from "@/lib/seedReviews";
+
+const bodyFont = Source_Sans_3({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const headingFont = Outfit({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-heading",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Alhamd Foundation — Serving Humanity Since 2012",
@@ -17,13 +32,13 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  // On a brand-new database (e.g. first production deploy) this fills in the
-  // 143 historical reviews and the default rashan package — safe & one-time.
   await ensureSeeded();
 
   return (
-    <html lang="en">
-      <body className="bg-stone-50 text-slate-900 antialiased overflow-x-hidden">{children}</body>
+    <html lang="en" className={`${bodyFont.variable} ${headingFont.variable}`}>
+      <body className="bg-stone-50 text-slate-900 antialiased overflow-x-hidden">
+        {children}
+      </body>
     </html>
   );
 }
