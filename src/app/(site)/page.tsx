@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { desc, count } from "drizzle-orm";
 import { db } from "@/db";
 import { reviews } from "@/db/schema";
@@ -29,17 +30,24 @@ export default async function HomePage() {
 
   return (
     <div className="overflow-x-hidden">
-      {/* Hero Section with Parallax-like Glow & Entrance Animations */}
-      <section
-        className="relative overflow-hidden bg-cover bg-center py-24 md:py-36"
-        style={{ backgroundImage: `url(${s.img_hero || "/images/hero.jpg"})` }}
-      >
+      {/* Hero Section with Optimized Next.js Image */}
+      <section className="relative overflow-hidden py-24 md:py-36">
+        {/* Optimized Background Image */}
+        <Image
+          src={s.img_hero || "/images/hero.jpg"}
+          alt="Alhamd Foundation"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        
         {/* Animated Gradient Overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/95 via-emerald-900/85 to-emerald-950/70" />
         <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none animate-pulse-slow" />
         <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-amber-400/20 blur-3xl pointer-events-none animate-pulse-slow delay-300" />
 
-        <div className="relative mx-auto max-w-6xl px-4">
+        <div className="relative mx-auto max-w-6xl px-4 z-10">
           <div className="max-w-2xl">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-400/20 px-4 py-1.5 backdrop-blur-md animate-slide-down">
@@ -59,7 +67,7 @@ export default async function HomePage() {
               {s.home_hero_text}
             </p>
 
-            {/* CTA Buttons with Hover & Tap Micro-animations */}
+            {/* CTA Buttons */}
             <div className="mt-8 flex flex-wrap items-center gap-4 animate-slide-up delay-300">
               <Link
                 href="/donate"
@@ -81,7 +89,7 @@ export default async function HomePage() {
       </section>
 
       {/* Floating Animated Counter Stats */}
-      <section className="relative z-10 -mt-10 mx-auto max-w-5xl px-4">
+      <section className="relative z-20 -mt-10 mx-auto max-w-5xl px-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {[
             {
@@ -105,7 +113,7 @@ export default async function HomePage() {
               label: `Years of Continuous Service Since ${foundedYear}`,
               bg: "from-emerald-800 to-emerald-900",
             },
-          ].map((st, i) => (
+          ].map((st) => (
             <div
               key={st.label}
               className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${st.bg} p-6 text-center text-white shadow-xl ring-1 ring-emerald-700/60 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:ring-amber-400/50`}
@@ -142,12 +150,14 @@ export default async function HomePage() {
           {/* Card 1: Rashan */}
           <div className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:ring-emerald-400/60">
             <div className="relative h-48 overflow-hidden bg-slate-100">
-              <img
+              <Image
                 src={s.img_rashan || "/images/rashan.jpg"}
                 alt="Rashan package"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                sizes="(max-width: 768px) 100vw, 33vw"
               />
-              <div className="absolute top-3 right-3 rounded-full bg-amber-400/90 px-3 py-1 text-xs font-extrabold text-emerald-950 backdrop-blur-sm shadow">
+              <div className="absolute top-3 right-3 rounded-full bg-amber-400/90 px-3 py-1 text-xs font-extrabold text-emerald-950 backdrop-blur-sm shadow z-10">
                 {numFamilies} Families
               </div>
             </div>
@@ -171,12 +181,14 @@ export default async function HomePage() {
           {/* Card 2: Scholarship */}
           <div className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:ring-emerald-400/60">
             <div className="relative h-48 overflow-hidden bg-slate-100">
-              <img
+              <Image
                 src={s.img_scholarship || "/images/scholarship.jpg"}
                 alt="Students"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                sizes="(max-width: 768px) 100vw, 33vw"
               />
-              <div className="absolute top-3 right-3 rounded-full bg-amber-400/90 px-3 py-1 text-xs font-extrabold text-emerald-950 backdrop-blur-sm shadow">
+              <div className="absolute top-3 right-3 rounded-full bg-amber-400/90 px-3 py-1 text-xs font-extrabold text-emerald-950 backdrop-blur-sm shadow z-10">
                 Rs. {s.application_fee} Fee
               </div>
             </div>
@@ -200,12 +212,14 @@ export default async function HomePage() {
           {/* Card 3: Volunteer */}
           <div className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:ring-emerald-400/60">
             <div className="relative h-48 overflow-hidden bg-slate-100">
-              <img
+              <Image
                 src={s.img_volunteer || "/images/volunteer.jpg"}
                 alt="Volunteers"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                sizes="(max-width: 768px) 100vw, 33vw"
               />
-              <div className="absolute top-3 right-3 rounded-full bg-emerald-700 text-white px-3 py-1 text-xs font-extrabold backdrop-blur-sm">
+              <div className="absolute top-3 right-3 rounded-full bg-emerald-700 text-white px-3 py-1 text-xs font-extrabold backdrop-blur-sm z-10">
                 100% Free Join
               </div>
             </div>
