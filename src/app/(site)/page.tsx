@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { desc } from "drizzle-orm";
+import { desc, count } from "drizzle-orm";
 import { db } from "@/db";
 import { reviews } from "@/db/schema";
 import { getAllSettings } from "@/lib/settings";
@@ -10,15 +10,22 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const s = await getAllSettings();
+  
+  // Latest 6 reviews for display
   const latestReviews = await db
     .select()
     .from(reviews)
     .orderBy(desc(reviews.createdAt))
     .limit(6);
 
+  // Auto count total reviews from database
+  const [reviewCountRes] = await db.select({ value: count() }).from(reviews);
+  const totalReviews = reviewCountRes.value;
+
   const numFamilies = parseInt(s.stat_families) || 104;
   const numScholarships = parseInt(s.stat_scholarships) || 143;
   const numYears = parseInt(s.stat_years) || 14;
+  const foundedYear = s.founded_year || "2012";
 
   return (
     <div className="overflow-x-hidden">
@@ -38,7 +45,7 @@ export default async function HomePage() {
             <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-400/20 px-4 py-1.5 backdrop-blur-md animate-slide-down">
               <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-ping" />
               <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
-                Est. {s.founded_year} • 14 Years of Selfless Service
+                Est. {foundedYear} • {numYears} Years of Selfless Service
               </span>
             </div>
 
@@ -95,7 +102,7 @@ export default async function HomePage() {
               target: numYears,
               suffix: "+",
               icon: "⏳",
-              label: "Years of Continuous Service Since 2012",
+              label: `Years of Continuous Service Since ${foundedYear}`,
               bg: "from-emerald-800 to-emerald-900",
             },
           ].map((st, i) => (
@@ -141,15 +148,15 @@ export default async function HomePage() {
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <div className="absolute top-3 right-3 rounded-full bg-amber-400/90 px-3 py-1 text-xs font-extrabold text-emerald-950 backdrop-blur-sm shadow">
-                {s.stat_families} Families
+                {numFamilies} Families
               </div>
             </div>
             <div className="flex flex-1 flex-col p-6">
               <h3 className="text-xl font-bold text-emerald-900 group-hover:text-emerald-700 transition-colors">
-                🛒 Monthly Rashan Package
+                🛒 {s.home_rashan_card_title || "Monthly Rashan Package"}
               </h3>
               <p className="mt-2.5 flex-1 text-sm text-slate-600 leading-relaxed">
-                A complete food package — flour, rice, cooking oil, lentils, sugar and tea — delivered discreetly to {s.stat_families} families every month.
+                A complete food package — flour, rice, cooking oil, lentils, sugar and tea — delivered discreetly to {numFamilies} families every month.
               </p>
               <Link
                 href="/rashan"
@@ -175,10 +182,10 @@ export default async function HomePage() {
             </div>
             <div className="flex flex-1 flex-col p-6">
               <h3 className="text-xl font-bold text-emerald-900 group-hover:text-emerald-700 transition-colors">
-                🎓 University Scholarship
+                🎓 {s.home_scholarship_card_title || "University Student Scholarship"}
               </h3>
               <p className="mt-2.5 flex-1 text-sm text-slate-600 leading-relaxed">
-                {s.stat_scholarships} students supported since 2012. Apply with only Rs. {s.application_fee} fee. Scholarships are announced every 6 months for selected students.
+                {numScholarships} students supported since {foundedYear}. Apply with only Rs. {s.application_fee} fee. Scholarships are announced every 6 months for selected students.
               </p>
               <Link
                 href="/scholarship"
@@ -231,7 +238,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Community Reviews Showcase (143+ reviews) */}
+      {/* Community Reviews Showcase */}
       <section className="mx-auto max-w-6xl px-4 py-20">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -239,23 +246,23 @@ export default async function HomePage() {
               Community Voices
             </span>
             <h2 className="mt-2 text-3xl md:text-4xl font-extrabold text-emerald-950">
-              143+ Reviews Across 14 Years
+              {totalReviews}+ Reviews Across {numYears} Years
             </h2>
             <p className="mt-1 text-sm text-slate-600">
-              Real feedback from donors, volunteers and scholarship holders since 2012.
+              Real feedback from donors, volunteers and scholarship holders since {foundedYear}.
             </p>
           </div>
           <Link
             href="/reviews"
             className="group inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-bold text-white shadow transition-all duration-300 hover:bg-emerald-600 hover:shadow-lg active:scale-95"
           >
-            <span>View All 143 Reviews</span>
+            <span>View All {totalReviews} Reviews</span>
             <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
           </Link>
         </div>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {latestReviews.map((r, idx) => (
+          {latestReviews.map((r) => (
             <div
               key={r.id}
               className="group flex flex-col justify-between rounded-2xl bg-white p-6 shadow ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:ring-emerald-300"
