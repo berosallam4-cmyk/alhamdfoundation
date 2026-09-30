@@ -14,6 +14,14 @@ export const SETTING_DEFAULTS: Record<string, string> = {
   scholarship_note:
     "Har 6 mahine baad Alhamd Foundation selected students ka scholarship announcement karti hai — jo students select hotay hain, un sab ko scholarship milti hai (InshaAllah). Application fee sirf 300 PKR per student hai.",
 
+  // --- NEW: Scholarship Countdown & Result Settings ---
+  scholarship_countdown_enabled: "true",
+  scholarship_deadline: "2025-06-30T23:59",
+  scholarship_results_published: "false",
+  scholarship_result_title: "Official Scholarship Winners List",
+  scholarship_result_message: "Mubarak to all selected scholars! Our team will contact your university for fee transfer.",
+  scholarship_closed_message: "Scholarship registration is now closed. Result announcement will be made shortly.",
+
   // Payment details (changeable from admin) - single primary payment method
   payment_method_type: "JazzCash", // JazzCash | EasyPaisa | Bank Transfer | Other
   payment_account_title: "Alhamd Foundation",
@@ -33,10 +41,20 @@ export const SETTING_DEFAULTS: Record<string, string> = {
   home_hero_title: "Serving Humanity Since 2012",
   home_hero_text:
     "Alhamd Foundation has been working locally for 14 years — providing monthly rashan to 104 families and scholarships to 143 deserving students. Your donation changes lives.",
+  
+  // --- NEW: Home Content Keys ---
+  home_rashan_card_title: "Monthly Rashan Package",
+  home_scholarship_card_title: "University Student Scholarship",
+  
   rashan_intro:
     "Every month Alhamd Foundation delivers a complete rashan package to deserving families. Below is exactly what one family receives, with current market prices.",
   volunteer_intro:
     "Young people from any city who want to work in the path of Allah can join Alhamd Foundation. Joining is completely FREE — no fee at all.",
+
+  // --- NEW: Contact Details ---
+  contact_email: "alhamdfoundation2012@gmail.com",
+  contact_phone: "+92 300 1234567",
+  contact_address: "Alhamd Foundation Head Office, Pakistan",
 
   // Website Images (Customizable from Admin)
   img_hero: "/images/hero.jpg",
@@ -59,47 +77,36 @@ export const SETTING_DEFAULTS: Record<string, string> = {
   email_footer: "Alhamd Foundation • alhamdfoundation2012@gmail.com",
 
   // ===== Email Templates (fully editable from Admin Panel) =====
-  // Available shortcodes:
-  // {{name}} {{id}} {{university}} {{semester}} {{city}} {{phone}}
-  // {{email}} {{fee}} {{fatherName}} {{cnic}} {{reason}}
-
-  // 1. New application -> Foundation
   tpl_new_admin_enabled: "true",
   tpl_new_admin_subject: "New Scholarship Application #{{id}} — {{name}}",
   tpl_new_admin_body:
     "A new scholarship application has been received.\n\nApplication ID: #{{id}}\nStudent Name: {{name}}\nFather Name: {{fatherName}}\nCNIC / B-Form: {{cnic}}\nPhone: {{phone}}\nEmail: {{email}}\nUniversity: {{university}}\nSemester: {{semester}}\nSemester Fee: Rs. {{fee}}\nCity: {{city}}\n\nPlease review the submitted documents in the Admin Panel.",
 
-  // 2. New application -> Student
   tpl_new_student_enabled: "true",
   tpl_new_student_subject: "Application Received #{{id}} — Alhamd Foundation",
   tpl_new_student_body:
     "Dear {{name}},\n\nYour scholarship application (#{{id}}) has been successfully received by Alhamd Foundation.\n\nStatus: Under Review\nUniversity: {{university}} ({{semester}})\nApplication Fee: Received\n\nOur committee will review your documents and verify the fee voucher. Selection announcements are made every 6 months.\n\nMay Allah grant you success in your studies.\n\nRegards,\nAlhamd Foundation",
 
-  // 3. Application approved
   tpl_approve_enabled: "true",
   tpl_approve_subject: "Congratulations! Application #{{id}} Approved",
   tpl_approve_body:
     "Dear {{name}},\n\nWe are pleased to inform you that your scholarship application (#{{id}}) has been APPROVED by Alhamd Foundation.\n\nUniversity: {{university}} ({{semester}})\n\nOur team will contact you shortly on {{phone}} regarding the next steps.\n\nMay Allah grant you success in your studies.\n\nRegards,\nAlhamd Foundation",
 
-  // 4. Application rejected
   tpl_reject_enabled: "true",
   tpl_reject_subject: "Update on Your Application #{{id}}",
   tpl_reject_body:
     "Dear {{name}},\n\nThank you for applying to the Alhamd Foundation scholarship programme.\n\nAfter careful review, we regret to inform you that your application (#{{id}}) could not be approved at this time.\n\nReason: {{reason}}\n\nWe encourage you to apply again in our next cycle.\n\nRegards,\nAlhamd Foundation",
 
-  // 5. Lucky draw selection
   tpl_lucky_enabled: "true",
   tpl_lucky_subject: "You Have Been Selected — Alhamd Foundation",
   tpl_lucky_body:
     "Dear {{name}},\n\nCongratulations! You have been selected in the Alhamd Foundation lucky draw.\n\nApplication ID: #{{id}}\nCity: {{city}}\n\nOur team will contact you on {{phone}} with further details.\n\nRegards,\nAlhamd Foundation",
 
-  // 6. Withdrawn / cancelled
   tpl_withdraw_enabled: "true",
   tpl_withdraw_subject: "Application #{{id}} Withdrawn",
   tpl_withdraw_body:
     "Dear {{name}},\n\nYour application (#{{id}}) with Alhamd Foundation has been withdrawn / cancelled.\n\nReason: {{reason}}\n\nIf this was a mistake, please contact us at your earliest convenience.\n\nRegards,\nAlhamd Foundation",
 
-  // Admin password (change from admin settings)
   admin_password: "alhamd2012",
 };
 
