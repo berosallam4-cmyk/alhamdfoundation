@@ -12,7 +12,7 @@ export default function CopyAccount({
   const [copied, setCopied] = useState(false);
 
   async function copy() {
-    const text = value.trim();
+    const text = (value || "").trim();
     if (!text) return;
 
     try {
@@ -40,7 +40,7 @@ export default function CopyAccount({
           type="button"
           onClick={copy}
           className="font-num text-lg font-extrabold text-emerald-800"
-          title="Number copy karne ke liye click karo"
+          title="Copy karne ke liye click karo"
         >
           {value}
         </button>
@@ -49,7 +49,7 @@ export default function CopyAccount({
           onClick={copy}
           className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-600"
         >
-          {copied ? "Copied" : "Copy"}
+          {copied ? "Copied ✓" : "Copy"}
         </button>
       </div>
     </div>
