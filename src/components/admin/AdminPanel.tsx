@@ -27,7 +27,6 @@ const TABS = [
   ["dashboard", "📊", "Dashboard"],
   ["numbers", "🔢", "Public Numbers"],
   ["scholarship_control", "⏳", "Scholarship & Countdown"],
-  ["programs", "💻", "Programs (Laptop Scheme)"],
   ["website_cms", "📝", "Website Content CMS"],
   ["applications", "🎓", "Scholarship Applications"],
   ["draw", "🎯", "Lucky Draw"],
@@ -126,7 +125,6 @@ export default function AdminPanel() {
           {tab === "dashboard" && <Dashboard data={data} setTab={setTab} />}
           {tab === "numbers" && <NumbersTab data={data} act={act} />}
           {tab === "scholarship_control" && <ScholarshipControlTab data={data} act={act} />}
-          {tab === "programs" && <ProgramsTab data={data} act={act} />}
           {tab === "website_cms" && <WebsiteCmsTab data={data} act={act} />}
           {tab === "applications" && <Applications data={data} act={act} />}
           {tab === "draw" && <Draw data={data} act={act} />}
