@@ -717,14 +717,75 @@ function Settings({ data, act }: { data: AdminData; act: ActFn }) {
         </div>
       </div>
 
-      {/* Home Page */}
+            {/* Home Page — Hero */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-4">
-        <h2 className="font-extrabold text-white text-base">🏠 Home Page Content</h2>
+        <h2 className="font-extrabold text-white text-base">🏠 Home Page Hero</h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2"><label className="text-xs font-bold text-slate-400">Hero Title (Main Heading)</label><input value={s.home_hero_title || ""} onChange={(e) => set("home_hero_title", e.target.value)} className={`${inputCls} mt-1`} /></div>
-          <div className="sm:col-span-2"><label className="text-xs font-bold text-slate-400">Hero Text (Description)</label><textarea rows={3} value={s.home_hero_text || ""} onChange={(e) => set("home_hero_text", e.target.value)} className={`${inputCls} mt-1`} /></div>
-          <div><label className="text-xs font-bold text-slate-400">Rashan Card Title</label><input value={s.home_rashan_card_title || ""} onChange={(e) => set("home_rashan_card_title", e.target.value)} className={`${inputCls} mt-1`} /></div>
-          <div><label className="text-xs font-bold text-slate-400">Scholarship Card Title</label><input value={s.home_scholarship_card_title || ""} onChange={(e) => set("home_scholarship_card_title", e.target.value)} className={`${inputCls} mt-1`} /></div>
+          <div className="sm:col-span-2">
+            <label className="text-xs font-bold text-slate-400">Hero Title (Main Heading)</label>
+            <input value={s.home_hero_title || ""} onChange={(e) => set("home_hero_title", e.target.value)} className={`${inputCls} mt-1`} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="text-xs font-bold text-slate-400">Hero Text (Description)</label>
+            <textarea rows={3} value={s.home_hero_text || ""} onChange={(e) => set("home_hero_text", e.target.value)} className={`${inputCls} mt-1`} />
+          </div>
+        </div>
+      </div>
+
+      {/* Rashan Card */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-4">
+        <h2 className="font-extrabold text-white text-base">🛒 Home Rashan Card</h2>
+        <div className="grid gap-4">
+          <div>
+            <label className="text-xs font-bold text-slate-400">Card Title</label>
+            <input value={s.home_rashan_card_title || ""} onChange={(e) => set("home_rashan_card_title", e.target.value)} className={`${inputCls} mt-1`} />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-400">Card Description</label>
+            <textarea rows={3} value={s.home_rashan_card_desc || ""} onChange={(e) => set("home_rashan_card_desc", e.target.value)} className={`${inputCls} mt-1`} />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-400">Link Button Text</label>
+            <input value={s.home_rashan_card_link || ""} onChange={(e) => set("home_rashan_card_link", e.target.value)} className={`${inputCls} mt-1`} />
+          </div>
+        </div>
+      </div>
+
+      {/* Scholarship Card */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-4">
+        <h2 className="font-extrabold text-white text-base">🎓 Home Scholarship Card</h2>
+        <div className="grid gap-4">
+          <div>
+            <label className="text-xs font-bold text-slate-400">Card Title</label>
+            <input value={s.home_scholarship_card_title || ""} onChange={(e) => set("home_scholarship_card_title", e.target.value)} className={`${inputCls} mt-1`} />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-400">Card Description</label>
+            <textarea rows={3} value={s.home_scholarship_card_desc || ""} onChange={(e) => set("home_scholarship_card_desc", e.target.value)} className={`${inputCls} mt-1`} />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-400">Link Button Text</label>
+            <input value={s.home_scholarship_card_link || ""} onChange={(e) => set("home_scholarship_card_link", e.target.value)} className={`${inputCls} mt-1`} />
+          </div>
+        </div>
+      </div>
+
+      {/* Volunteer Card */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-4">
+        <h2 className="font-extrabold text-white text-base">🤝 Home Volunteer Card</h2>
+        <div className="grid gap-4">
+          <div>
+            <label className="text-xs font-bold text-slate-400">Card Title</label>
+            <input value={s.home_volunteer_card_title || ""} onChange={(e) => set("home_volunteer_card_title", e.target.value)} className={`${inputCls} mt-1`} />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-400">Card Description</label>
+            <textarea rows={3} value={s.home_volunteer_card_desc || ""} onChange={(e) => set("home_volunteer_card_desc", e.target.value)} className={`${inputCls} mt-1`} />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-400">Link Button Text</label>
+            <input value={s.home_volunteer_card_link || ""} onChange={(e) => set("home_volunteer_card_link", e.target.value)} className={`${inputCls} mt-1`} />
+          </div>
         </div>
       </div>
 
