@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7,
+    // maxAge hata diya — ab ye session cookie hai (browser band = logout)
   });
   return res;
 }
