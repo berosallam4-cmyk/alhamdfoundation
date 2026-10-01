@@ -12,12 +12,11 @@ function parsePkt(value?: string | null) {
   if (!value) return null;
   const raw = value.trim();
   if (!raw) return null;
-  const withZone =
-    raw.length === 16
-      ? `${raw}:00+05:00`
-      : /(?:Z|[+-]\d{2}:\d{2})$/.test(raw)
-      ? raw
-      : `${raw}+05:00`;
+  const withZone = raw.length === 16
+    ? `${raw}:00+05:00`
+    : /(?:Z|[+-]\d{2}:\d{2})$/.test(raw)
+    ? raw
+    : `${raw}+05:00`;
   const date = new Date(withZone);
   return Number.isNaN(date.getTime()) ? null : date;
 }
@@ -107,7 +106,11 @@ export default async function ScholarshipPage() {
 
         <div className="mt-8 space-y-6">
           {registrationOpen && countdownOn && s.scholarship_deadline && (
-            <ScholarshipCountdown deadline={s.scholarship_deadline} />
+            <ScholarshipCountdown
+              deadline={s.scholarship_deadline}
+              heading={s.countdown_heading}
+              deadlineLabel={s.countdown_deadline_label}
+            />
           )}
 
           {resultsPublished && (
