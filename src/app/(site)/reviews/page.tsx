@@ -1,16 +1,30 @@
 import { desc } from "drizzle-orm";
 import { db } from "@/db";
 import { reviews } from "@/db/schema";
+import { getAllSettings } from "@/lib/settings";
+import { fill, pick, textVars } from "@/lib/pageText";
 import ReviewForm from "./ReviewForm";
 import ReviewList from "./ReviewList";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReviewsPage() {
-  const allReviews = await db
-    .select()
-    .from(reviews)
-    .orderBy(desc(reviews.createdAt));
+  const [s, allReviews] = await Promise.all([
+    getAllSettings(),
+    db.select().from(reviews).orderBy(desc(reviews.createdAt)),
+  ]);
+  const vars = textVars(s, allReviews.length);
+
+  const badge = fill(pick(s.page_rev_badge, "{reviews}+ Reviews ({founded} – Present)"), vars);
+  const title = pick(s.page_rev_title, "Community Reviews");
+  const text = fill(
+    pick(
+      s.page_rev_text,
+      "Alhamd Foundation has touched thousands of lives over the last {years} years. Every review displays the exact Pakistan Standard Time (PKT) it was posted."
+    ),
+    vars
+  );
+  const totalLabel = pick(s.page_rev_total_label, "Total Verified Reviews");
 
   return (
     <div className="bg-stone-50">
@@ -19,16 +33,14 @@ export default async function ReviewsPage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <span className="inline-block rounded-full bg-amber-400 px-3 py-1 text-xs font-extrabold text-emerald-950">
-                143+ Reviews (2012 – Present)
+                {badge}
               </span>
-              <h1 className="mt-2 text-4xl font-extrabold">⭐ Community Reviews</h1>
-              <p className="mt-2 max-w-xl text-sm text-emerald-100">
-                Alhamd Foundation has touched thousands of lives over the last 14 years. Every review displays the exact Pakistan Standard Time (PKT) it was posted.
-              </p>
+              <h1 className="mt-2 text-4xl font-extrabold">⭐ {title}</h1>
+              <p className="mt-2 max-w-xl text-sm text-emerald-100">{text}</p>
             </div>
             <div className="rounded-2xl bg-emerald-800/80 p-4 text-center ring-1 ring-emerald-700">
               <div className="text-3xl font-extrabold text-amber-300">{allReviews.length}</div>
-              <div className="text-xs font-semibold text-emerald-100">Total Verified Reviews</div>
+              <div className="text-xs font-semibold text-emerald-100">{totalLabel}</div>
             </div>
           </div>
         </div>
