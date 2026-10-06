@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { formatPKR, formatPKT } from "@/lib/format";
 import { fileToDataUrl } from "@/lib/imageUpload";
 import { TEMPLATE_LIST } from "@/lib/emailTemplateList";
+import PageTextsTab from "./PageTextsTab";
 
 /* ---------- Types ---------- */
 type Application = { id: number; fullName: string; fatherName: string; cnic: string; phone: string; email: string; university: string; semester: string; perSemesterFee: number; city: string; guardianProfession: string; familyMembers: number; studentPhoto: string; idCardFront: string; idCardBack: string; feeVoucher: string; paymentScreenshot: string; status: string; createdAt: string; };
@@ -40,6 +41,7 @@ const TABS = [
   ["email", "✉️", "Email & Alerts"],
   ["templates", "📋", "Email Templates"],
   ["settings", "⚙️", "Site Settings"],
+    ["pagetexts", "📝", "Page Texts & Forms"],
 ] as const;
 
 const inputCls = "w-full rounded-lg border border-slate-700 bg-slate-800/90 px-3.5 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition";
@@ -135,6 +137,7 @@ export default function AdminPanel() {
           {tab === "email" && <EmailTab data={data} act={act} />}
           {tab === "templates" && <EmailTemplatesTab data={data} act={act} />}
           {tab === "settings" && <Settings data={data} act={act} />}
+          {tab === "pagetexts" && <PageTextsTab settings={data.settings} act={act} />}
         </main>
       </div>
     </div>
