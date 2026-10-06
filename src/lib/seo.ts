@@ -26,6 +26,7 @@ export function buildMeta(opts: {
   );
 
   const params = new URLSearchParams({
+    p: opts.path,
     k: opts.imageKey || "img_hero",
     t: cardTitle,
     d: clean(opts.description, 170),
