@@ -23,6 +23,33 @@ const SECTIONS: { title: string; hint?: string; fields: TextField[] }[] = [
     ],
   },
   {
+    title: "🃏 Scholarship Page ke 3 Cards",
+    hint: "Banner ke neeche wale teen cards.",
+    fields: [
+      { key: "page_sch_c1_title", label: "Card 1 — Title", def: "Only Rs. {fee} Fee" },
+      {
+        key: "page_sch_c1_text",
+        label: "Card 1 — Text",
+        def: "Each student pays only Rs. {fee} to apply. This fee pool itself funds the scholarships.",
+        multiline: true,
+      },
+      { key: "page_sch_c2_title", label: "Card 2 — Title", def: "Fair Selection" },
+      {
+        key: "page_sch_c2_text",
+        label: "Card 2 — Text",
+        def: "Applications are reviewed by the Alhamd Foundation team. Selected students are announced through a transparent process so that every deserving student gets a fair chance.",
+        multiline: true,
+      },
+      { key: "page_sch_c3_title", label: "Card 3 — Title", def: "Every 6 Months" },
+      {
+        key: "page_sch_c3_text",
+        label: "Card 3 — Text",
+        def: "Scholarship announcements are made after every 6 months. All selected students of that cycle receive their scholarship, InshaAllah.",
+        multiline: true,
+      },
+    ],
+  },
+  {
     title: "📝 Scholarship Form ka heading",
     fields: [
       { key: "form_heading", label: "Form ka Title", def: "Scholarship Application Form" },
@@ -104,7 +131,7 @@ export default function PageTextsTab({ settings, act }: Props) {
         <div>
           <h1 className="text-2xl font-black text-white">📝 Page Texts &amp; Form Labels</h1>
           <p className="mt-1 text-sm text-slate-400">
-            Yahan se pages ke heading, text aur form ke field badlo. Box khali chhoro to default text chalega.
+            Yahan se pages ke heading, text, cards aur form ke field badlo. Box khali chhoro to default text chalega.
           </p>
         </div>
         <button
@@ -132,7 +159,10 @@ export default function PageTextsTab({ settings, act }: Props) {
 
       {SECTIONS.map((sec) => (
         <div key={sec.title} className="rounded-2xl border border-slate-800 bg-slate-900 p-5 space-y-4">
-          <h2 className="font-extrabold text-white text-base">{sec.title}</h2>
+          <div>
+            <h2 className="font-extrabold text-white text-base">{sec.title}</h2>
+            {sec.hint && <p className="mt-1 text-xs text-slate-500">{sec.hint}</p>}
+          </div>
           {sec.fields.map((f) => (
             <div key={f.key}>
               <div className="flex items-center justify-between">
@@ -149,7 +179,7 @@ export default function PageTextsTab({ settings, act }: Props) {
               </div>
               {f.multiline ? (
                 <textarea
-                  rows={2}
+                  rows={3}
                   value={v[f.key]}
                   placeholder={f.def}
                   onChange={(e) => set(f.key, e.target.value)}
