@@ -2,11 +2,17 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { scholarshipApplications } from "@/db/schema";
 import { getAllSettings } from "@/lib/settings";
+import { fill, pick, textVars } from "@/lib/pageText";
 import ApplyForm from "./ApplyForm";
 import PaymentDetails from "./PaymentDetails";
 import ScholarshipCountdown from "./ScholarshipCountdown";
 
 export const dynamic = "force-dynamic";
+
+const FIELD_IDS = [
+  "name", "father", "cnic", "phone", "email", "university",
+  "semester", "fee", "city", "profession", "members",
+];
 
 function parsePkt(value?: string | null) {
   if (!value) return null;
@@ -23,12 +29,34 @@ function parsePkt(value?: string | null) {
 
 export default async function ScholarshipPage() {
   const s = await getAllSettings();
+  const vars = textVars(s);
 
   const resultsPublished = s.scholarship_results_published === "true";
   const countdownOn = s.scholarship_countdown_enabled !== "false";
   const deadline = parsePkt(s.scholarship_deadline);
   const deadlinePassed = deadline ? Date.now() > deadline.getTime() : false;
   const registrationOpen = !resultsPublished && !deadlinePassed;
+
+  const pageTitle = pick(s.page_sch_title, "Scholarship Program");
+  const pageText = fill(
+    pick(
+      s.page_sch_text,
+      "{scholarships} students have already received scholarships in {years} years. You could be next, InshaAllah."
+    ),
+    vars
+  );
+
+  const formTexts: Record<string, string> = {
+    heading: pick(s.form_heading, "Scholarship Application Form"),
+    subheading: fill(
+      pick(s.form_subheading, "Fill all fields carefully. Application fee: Rs. {fee}."),
+      vars
+    ),
+  };
+  for (const id of FIELD_IDS) {
+    formTexts[`${id}_label`] = s[`form_${id}_label`] || "";
+    formTexts[`${id}_ph`] = s[`form_${id}_ph`] || "";
+  }
 
   const winners = resultsPublished
     ? await db
@@ -52,11 +80,8 @@ export default async function ScholarshipPage() {
       >
         <div className="absolute inset-0 bg-emerald-950/80" />
         <div className="relative mx-auto max-w-6xl px-4 py-20 text-white">
-          <h1 className="text-4xl font-extrabold">🎓 Scholarship Program</h1>
-          <p className="mt-3 max-w-2xl text-lg text-emerald-100">
-            {s.stat_scholarships} students have already received scholarships
-            in {s.stat_years} years. You could be next, InshaAllah.
-          </p>
+          <h1 className="text-4xl font-extrabold">🎓 {pageTitle}</h1>
+          <p className="mt-3 max-w-2xl text-lg text-emerald-100">{pageText}</p>
         </div>
       </section>
 
@@ -142,9 +167,7 @@ export default async function ScholarshipPage() {
                       {winners.map((w, i) => (
                         <tr key={w.id} className="border-b border-slate-100">
                           <td className="px-3 py-3 text-slate-400">{i + 1}</td>
-                          <td className="px-3 py-3 font-bold text-emerald-950">
-                            {w.fullName}
-                          </td>
+                          <td className="px-3 py-3 font-bold text-emerald-950">{w.fullName}</td>
                           <td className="px-3 py-3">{w.fatherName}</td>
                           <td className="px-3 py-3">{w.university}</td>
                           <td className="px-3 py-3">{w.city}</td>
@@ -167,7 +190,9 @@ export default async function ScholarshipPage() {
             </div>
           )}
 
-          {registrationOpen && <ApplyForm feeAmount={s.application_fee} />}
+          {registrationOpen && (
+            <ApplyForm feeAmount={s.application_fee} texts={formTexts} />
+          )}
         </div>
       </section>
     </div>
