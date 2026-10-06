@@ -8,6 +8,49 @@ const inputCls =
 const fileCls =
   "mt-1 w-full rounded-lg border border-dashed border-emerald-400 bg-emerald-50/50 px-3 py-3 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-emerald-700 file:px-3 file:py-1.5 file:text-white";
 
+const EMPTY = {
+  fullName: "",
+  fatherName: "",
+  cnic: "",
+  phone: "",
+  email: "",
+  university: "",
+  semester: "",
+  perSemesterFee: "",
+  city: "",
+  guardianProfession: "",
+  familyMembers: "",
+};
+type FormKey = keyof typeof EMPTY;
+
+const FIELDS: {
+  id: string;
+  key: FormKey;
+  label: string;
+  ph: string;
+  type?: string;
+  min?: string;
+}[] = [
+  { id: "name", key: "fullName", label: "Student Full Name", ph: "e.g. Muhammad Ali" },
+  { id: "father", key: "fatherName", label: "Father Name", ph: "Father's full name" },
+  { id: "cnic", key: "cnic", label: "CNIC / B-Form Number", ph: "00000-0000000-0" },
+  { id: "phone", key: "phone", label: "Active Phone Number", ph: "03xx-xxxxxxx" },
+  { id: "email", key: "email", label: "Email Address", ph: "you@example.com", type: "email" },
+  { id: "university", key: "university", label: "University / College", ph: "University name" },
+  { id: "semester", key: "semester", label: "Current Semester", ph: "e.g. 3rd Semester" },
+  { id: "fee", key: "perSemesterFee", label: "Fee Per Semester (PKR)", ph: "e.g. 45000", type: "number", min: "0" },
+  { id: "city", key: "city", label: "City", ph: "Your city" },
+  { id: "profession", key: "guardianProfession", label: "Father / Guardian Profession", ph: "e.g. Shopkeeper, Labourer" },
+  {
+    id: "members",
+    key: "familyMembers",
+    label: "Total Members in Family (Ghar mein kul kitne log hain)",
+    ph: "e.g. 6",
+    type: "number",
+    min: "1",
+  },
+];
+
 type Images = {
   studentPhoto: string | null;
   idCardFront: string | null;
@@ -16,20 +59,15 @@ type Images = {
   paymentScreenshot: string | null;
 };
 
-export default function ApplyForm({ feeAmount }: { feeAmount: string }) {
-  const [form, setForm] = useState({
-    fullName: "",
-    fatherName: "",
-    cnic: "",
-    phone: "",
-    email: "",
-    university: "",
-    semester: "",
-    perSemesterFee: "",
-    city: "",
-    guardianProfession: "",
-    familyMembers: "",
-  });
+export default function ApplyForm({
+  feeAmount,
+  texts,
+}: {
+  feeAmount: string;
+  texts?: Record<string, string>;
+}) {
+  const t = texts || {};
+  const [form, setForm] = useState({ ...EMPTY });
   const [images, setImages] = useState<Images>({
     studentPhoto: null,
     idCardFront: null,
@@ -113,59 +151,29 @@ export default function ApplyForm({ feeAmount }: { feeAmount: string }) {
   return (
     <form onSubmit={submit} className="mt-10 rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200 md:p-8">
       <h2 className="text-2xl font-extrabold text-emerald-900">
-        Scholarship Application Form
+        {t.heading || "Scholarship Application Form"}
       </h2>
       <p className="mt-1 text-sm text-slate-500">
-        Fill all fields carefully. Application fee: Rs. {feeAmount}.
+        {t.subheading || `Fill all fields carefully. Application fee: Rs. ${feeAmount}.`}
       </p>
 
       <div className="mt-6 grid gap-5 md:grid-cols-2">
-        <div>
-          <label className="text-sm font-bold text-slate-700">Student Full Name *</label>
-          <input required value={form.fullName} onChange={(e) => set("fullName", e.target.value)} className={inputCls} placeholder="e.g. Muhammad Ali" />
-        </div>
-        <div>
-          <label className="text-sm font-bold text-slate-700">Father Name *</label>
-          <input required value={form.fatherName} onChange={(e) => set("fatherName", e.target.value)} className={inputCls} placeholder="Father's full name" />
-        </div>
-        <div>
-          <label className="text-sm font-bold text-slate-700">CNIC / B-Form Number *</label>
-          <input required value={form.cnic} onChange={(e) => set("cnic", e.target.value)} className={inputCls} placeholder="00000-0000000-0" />
-        </div>
-        <div>
-          <label className="text-sm font-bold text-slate-700">Active Phone Number *</label>
-          <input required value={form.phone} onChange={(e) => set("phone", e.target.value)} className={inputCls} placeholder="03xx-xxxxxxx" />
-        </div>
-        <div>
-          <label className="text-sm font-bold text-slate-700">Email Address *</label>
-          <input required type="email" value={form.email} onChange={(e) => set("email", e.target.value)} className={inputCls} placeholder="you@example.com" />
-        </div>
-        <div>
-          <label className="text-sm font-bold text-slate-700">University / College *</label>
-          <input required value={form.university} onChange={(e) => set("university", e.target.value)} className={inputCls} placeholder="University name" />
-        </div>
-        <div>
-          <label className="text-sm font-bold text-slate-700">Current Semester *</label>
-          <input required value={form.semester} onChange={(e) => set("semester", e.target.value)} className={inputCls} placeholder="e.g. 3rd Semester" />
-        </div>
-        <div>
-          <label className="text-sm font-bold text-slate-700">Fee Per Semester (PKR) *</label>
-          <input required type="number" min="0" value={form.perSemesterFee} onChange={(e) => set("perSemesterFee", e.target.value)} className={inputCls} placeholder="e.g. 45000" />
-        </div>
-        <div>
-          <label className="text-sm font-bold text-slate-700">City *</label>
-          <input required value={form.city} onChange={(e) => set("city", e.target.value)} className={inputCls} placeholder="Your city" />
-        </div>
-        <div>
-          <label className="text-sm font-bold text-slate-700">Father / Guardian Profession *</label>
-          <input required value={form.guardianProfession} onChange={(e) => set("guardianProfession", e.target.value)} className={inputCls} placeholder="e.g. Shopkeeper, Labourer" />
-        </div>
-        <div>
-          <label className="text-sm font-bold text-slate-700">
-            Total Members in Family (Ghar mein kul kitne log hain) *
-          </label>
-          <input required type="number" min="1" value={form.familyMembers} onChange={(e) => set("familyMembers", e.target.value)} className={inputCls} placeholder="e.g. 6" />
-        </div>
+        {FIELDS.map((f) => (
+          <div key={f.id}>
+            <label className="text-sm font-bold text-slate-700">
+              {t[`${f.id}_label`] || f.label} *
+            </label>
+            <input
+              required
+              type={f.type || "text"}
+              min={f.min}
+              value={form[f.key]}
+              onChange={(e) => set(f.key, e.target.value)}
+              className={inputCls}
+              placeholder={t[`${f.id}_ph`] || f.ph}
+            />
+          </div>
+        ))}
       </div>
 
       <h3 className="mt-8 border-t border-slate-200 pt-6 text-lg font-bold text-emerald-900">
