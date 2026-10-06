@@ -46,6 +46,31 @@ export default async function ScholarshipPage() {
     vars
   );
 
+  const card1Title = fill(pick(s.page_sch_c1_title, "Only Rs. {fee} Fee"), vars);
+  const card1Text = fill(
+    pick(
+      s.page_sch_c1_text,
+      "Each student pays only Rs. {fee} to apply. This fee pool itself funds the scholarships."
+    ),
+    vars
+  );
+  const card2Title = fill(pick(s.page_sch_c2_title, "Fair Selection"), vars);
+  const card2Text = fill(
+    pick(
+      s.page_sch_c2_text,
+      "Applications are reviewed by the Alhamd Foundation team. Selected students are announced through a transparent process so that every deserving student gets a fair chance."
+    ),
+    vars
+  );
+  const card3Title = fill(pick(s.page_sch_c3_title, "Every 6 Months"), vars);
+  const card3Text = fill(
+    pick(
+      s.page_sch_c3_text,
+      "Scholarship announcements are made after every 6 months. All selected students of that cycle receive their scholarship, InshaAllah."
+    ),
+    vars
+  );
+
   const formTexts: Record<string, string> = {
     heading: pick(s.form_heading, "Scholarship Application Form"),
     subheading: fill(
@@ -90,13 +115,8 @@ export default async function ScholarshipPage() {
           <div className="flex flex-col justify-between rounded-xl bg-white p-6 shadow ring-1 ring-slate-200">
             <div>
               <div className="text-3xl">💳</div>
-              <h3 className="mt-2 font-bold text-emerald-900">
-                Only Rs. {s.application_fee} Fee
-              </h3>
-              <p className="mt-1 text-sm text-slate-600">
-                Each student pays only Rs. {s.application_fee} to apply. This fee
-                pool itself funds the scholarships.
-              </p>
+              <h3 className="mt-2 font-bold text-emerald-900">{card1Title}</h3>
+              <p className="mt-1 text-sm text-slate-600">{card1Text}</p>
             </div>
             <div>
               <PaymentDetails
@@ -111,21 +131,13 @@ export default async function ScholarshipPage() {
           </div>
           <div className="rounded-xl bg-white p-6 shadow ring-1 ring-slate-200">
             <div className="text-3xl">📋</div>
-            <h3 className="mt-2 font-bold text-emerald-900">Fair Selection</h3>
-            <p className="mt-1 text-sm text-slate-600">
-              Applications are reviewed by the Alhamd Foundation team. Selected
-              students are announced through a transparent process so that
-              every deserving student gets a fair chance.
-            </p>
+            <h3 className="mt-2 font-bold text-emerald-900">{card2Title}</h3>
+            <p className="mt-1 text-sm text-slate-600">{card2Text}</p>
           </div>
           <div className="rounded-xl bg-white p-6 shadow ring-1 ring-slate-200">
             <div className="text-3xl">📅</div>
-            <h3 className="mt-2 font-bold text-emerald-900">Every 6 Months</h3>
-            <p className="mt-1 text-sm text-slate-600">
-              Scholarship announcements are made after every 6 months. All
-              selected students of that cycle receive their scholarship,
-              InshaAllah.
-            </p>
+            <h3 className="mt-2 font-bold text-emerald-900">{card3Title}</h3>
+            <p className="mt-1 text-sm text-slate-600">{card3Text}</p>
           </div>
         </div>
 
