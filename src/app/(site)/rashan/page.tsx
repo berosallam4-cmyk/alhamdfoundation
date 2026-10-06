@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { rashanItems } from "@/db/schema";
 import { getAllSettings } from "@/lib/settings";
 import { formatPKR } from "@/lib/format";
+import { fill, pick, textVars } from "@/lib/pageText";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,16 @@ export default async function RashanPage() {
     db.select().from(rashanItems).orderBy(asc(rashanItems.id)),
   ]);
   const total = items.reduce((sum, i) => sum + i.price, 0);
+  const vars = textVars(s);
+
+  const pageTitle = pick(s.page_rashan_title, "Monthly Rashan Program");
+  const pageText = fill(
+    pick(
+      s.page_rashan_text,
+      "{families} deserving families receive a complete rashan package every month, Alhamdulillah."
+    ),
+    vars
+  );
 
   return (
     <div className="bg-stone-50">
@@ -22,11 +33,8 @@ export default async function RashanPage() {
       >
         <div className="absolute inset-0 bg-emerald-950/80" />
         <div className="relative mx-auto max-w-6xl px-4 py-20 text-white">
-          <h1 className="text-4xl font-extrabold">🛒 Monthly Rashan Program</h1>
-          <p className="mt-3 max-w-2xl text-lg text-emerald-100">
-            {s.stat_families} deserving families receive a complete rashan
-            package every month, Alhamdulillah.
-          </p>
+          <h1 className="text-4xl font-extrabold">🛒 {pageTitle}</h1>
+          <p className="mt-3 max-w-2xl text-lg text-emerald-100">{pageText}</p>
         </div>
       </section>
 
