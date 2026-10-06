@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ensureSeeded } from "@/lib/seedReviews";
+import { getAllSettings } from "@/lib/settings";
+import { SITE_URL, buildMeta } from "@/lib/seo";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -11,18 +13,21 @@ const inter = Inter({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Alhamd Foundation — Serving Humanity Since 2012",
-  description:
-    "Alhamd Foundation provides monthly rashan to deserving families and scholarships to students. Working in the path of Allah since 2012.",
-  keywords: ["Alhamd Foundation", "charity Pakistan", "rashan", "scholarship", "zakat", "sadaqah"],
-  openGraph: {
-    title: "Alhamd Foundation — Serving Humanity Since 2012",
-    description:
-      "Monthly rashan for 104+ families and scholarships for 143+ students. Donate or apply online.",
-    type: "website",
-  },
-};
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const s = await getAllSettings();
+  return {
+    metadataBase: new URL(SITE_URL),
+    ...buildMeta({
+      title: `Alhamd Foundation — ${s.home_hero_title || "Serving Humanity Since 2012"}`,
+      description: s.home_hero_text,
+      path: "/",
+      imageKey: "img_hero",
+    }),
+    keywords: ["Alhamd Foundation", "charity Pakistan", "rashan", "scholarship", "zakat", "sadaqah"],
+  };
+}
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   await ensureSeeded();
